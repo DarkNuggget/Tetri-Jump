@@ -77,12 +77,7 @@ public class TetriGui extends Application {
       double playerX = player.getX(); // Verwenden von getX() und getY()
       double playerY = player.getY();
         if (player.getBoundsInParent().intersects(obstacle.getBoundsInParent())) {
-            System.out.println("Kollision erkannt!");
-        
-           player.setY(playerY = 0);   
-        
-            
-
+           player.setY(playerY = obstacle.getY() - obstacle.getHeight() * 3 + 12);   
         }
     }
 
