@@ -75,7 +75,7 @@ public class StartScreen {
     // Musik abspielen
     private void startMusic() {
         // Den Pfad zur Musikdatei korrekt angeben
-        File file = new File("Falling Blocks.mp3");
+        File file = new File("Musik1.mp3");
         String uriString = file.toURI().toString(); // Den URI aus dem Dateipfad generieren
         Media media = new Media(uriString); // Media-Objekt erstellen
         mediaPlayer = new MediaPlayer(media);
