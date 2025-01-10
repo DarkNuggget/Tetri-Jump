@@ -8,7 +8,7 @@ Steuerung:
 A = links bewegen
 D = rechts bewegen
 Space = Springen
-M = Menu (soll noch auf ESC geändert werden)
+M = Menu (soll noch auf ESC geändert werden und ICH WEIß Die scheiß musik wiederholt sich)
 
 !!WIRD GELÖSCHT!!
 S = runter
