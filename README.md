@@ -5,13 +5,26 @@ Unsere Vision ist es, ein spannendes Spiel zu entwickeln, das klassische Tetris-
 
 Steuerung:
 
+Classic Tetris:
+
+A = links bewegen
+D = rechts bewegen
+S = schneller runter
+Space = Block drehen 
+M = Menu  (der DRECK geht immer noch net aaaaaaaaaaaaaaaaaaahhhhhhhhhhhhhhh)
+
+Jump Tetris: 
+
 A = links bewegen
 D = rechts bewegen
 Space = Springen
-M = Menu (soll noch auf ESC geändert werden und ICH WEIß Die scheiß musik wiederholt sich)
+M = Menu  (der DRECK geht immer noch net aaaaaaaaaaaaaaaaaaahhhhhhhhhhhhhhh)
 
-!!WIRD GELÖSCHT!!
-S = runter
+
+
+
+
+
 
 
 
