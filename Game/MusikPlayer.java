@@ -18,7 +18,8 @@ public class MusikPlayer {
     private List<String> gameMusikListe;
     private final String menuMusik = "Musik/MenuMusik/";
     private final String gameMusik = "Musik/GameMusik/";
-    private double aktuelleLautstaerke = 1.0;  // Standardlautstärke
+    private double aktuelleLautstaerke = 0.5;  // Standardlautstärke
+    private TetriJump tetriJump;
   
     // Getter und Setter für die Lautstärke
     public double getAktuelleLautstaerke() {
@@ -52,7 +53,7 @@ public class MusikPlayer {
         stopMusik();  // Stoppe zuerst die aktuelle Musik
         String ausgewählteMusik = waehleZufaelligeMusik(menuMusikListe);
         File musicFile = new File(menuMusik + ausgewählteMusik);
-
+        speichereMusik(menuMusik, ausgewählteMusik);
         if (musicFile.exists()) {
             Media media = new Media(musicFile.toURI().toString());
             mediaPlayer = new MediaPlayer(media);
@@ -69,7 +70,7 @@ public class MusikPlayer {
         stopMusik();  // Stoppe zuerst die aktuelle Musik
         String ausgewählteMusik = waehleZufaelligeMusik(gameMusikListe);
         File musicFile = new File(gameMusik + ausgewählteMusik);
-
+        speichereMusik(gameMusik, ausgewählteMusik);
         if (musicFile.exists()) {
             Media media = new Media(musicFile.toURI().toString());
             mediaPlayer = new MediaPlayer(media);
@@ -80,16 +81,22 @@ public class MusikPlayer {
             System.out.println("Musikdatei " + musicFile.getName() + " wurde nicht gefunden.");
         }
     }
+  
+    public void speichereMusik(String musikDatei, String ausgewählteMusik) {
+      
+        String AktuelleMusik = musikDatei + ausgewählteMusik;
+        System.out.println(AktuelleMusik);
+        
+    }  
 
     // Stoppt die aktuell abgespielte Musik
     public void stopMusik() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
-            mediaPlayer = null; // Vermeidet ungewollte Instanzen
         } else {
             System.out.println("musikPlayer ist Null (musikPlayer ist nicht initialisiert!)");
         }
-    }
+    }                  
 
     // Wählt zufällig ein Musikstück aus der übergebenen Liste
     private String waehleZufaelligeMusik(List<String> musikListe) {
@@ -114,9 +121,9 @@ public class MusikPlayer {
 
         volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             this.setAktuelleLautstaerke(newValue.doubleValue()); // Aktualisiere die Lautstärke
-            
+            if (mediaPlayer != null) {
                 mediaPlayer.setVolume(this.getAktuelleLautstaerke()); // Setze die Lautstärke im MediaPlayer
-            
+            }
         });
 
         Button closeButton = new Button("Close");
@@ -127,5 +134,5 @@ public class MusikPlayer {
         Scene scene = new Scene(vbox, 300, 150);
         optionsStage.setScene(scene);
         optionsStage.show();
-    }
+    }    
 }
