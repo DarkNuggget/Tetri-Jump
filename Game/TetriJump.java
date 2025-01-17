@@ -110,9 +110,14 @@ public class TetriJump {
             musikPlayer.stopMusik(); // Musik stoppen, falls nötig
             app.showStartScreen();  // Zeige den Startbildschirm
         });
-
+        
+        Button exitButton = new Button("Exit");
+        exitButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
+        exitButton.setOnAction(event -> System.exit(0));
+      
+      
         // Füge alle Buttons zum Menü hinzu
-        modeRoot.getChildren().addAll(menuTitle, resumeButton, optionsButton, mainButton);
+        modeRoot.getChildren().addAll(menuTitle, resumeButton, optionsButton, mainButton, exitButton);
 
         // Füge das Menü als Overlay zum Spielfeld hinzu
         gameRoot.getChildren().add(modeRoot);
