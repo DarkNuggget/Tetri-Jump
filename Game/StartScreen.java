@@ -14,8 +14,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+
 import java.io.File;
 import javafx.util.Duration;
 
@@ -30,9 +29,9 @@ public class StartScreen {
         createUI();
     }
 
-    public void createUI() {
+    public void createUI() {    
         musikPlayer.startMenuMusik();
-
+   
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
 
@@ -105,6 +104,7 @@ public class StartScreen {
                 String mode = selectedMode.getText();
                 System.out.println("Starting game in mode: " + mode);
                 modeStage.close();
+        
                 app.startGameWithMode(mode); // Spiel im ausgewählten Modus starten
             }
             musikPlayer.stopMusik();
