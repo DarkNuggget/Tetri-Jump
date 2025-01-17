@@ -1,6 +1,6 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
+import javafx.stage.Stage;   
 
 public class TetriGui extends Application {
     private Stage primaryStage;
@@ -19,10 +19,18 @@ public class TetriGui extends Application {
         StartScreen startScreen = new StartScreen(this);
         Scene startScene = startScreen.getScene();
         primaryStage.setTitle("TetriGui - Start");
-        primaryStage.setScene(startScene);
+        primaryStage.setScene(startScene);   
         primaryStage.setResizable(false);
-        primaryStage.show();
-        musikPlayer.stopMusik();
+        primaryStage.show();  
+           if (musikPlayer != null) {
+            System.out.println("MusikPlayer ist vorhanden!");
+            musikPlayer.stopMusik();
+      } else {
+            System.out.println("MusikPlayer ist null!");
+        
+      }
+
+        
     }
 
     public void startGame() {
