@@ -11,15 +11,14 @@ A = links bewegen
 D = rechts bewegen
 S = schneller runter
 Space = Block drehen 
-M = Menu  (der DRECK geht immer noch net aaaaaaaaaaaaaaaaaaahhhhhhhhhhhhhhh)
+M = Menu  
 
 Jump Tetris: 
 
 A = links bewegen
 D = rechts bewegen
 Space = Springen
-M = Menu  (der DRECK geht immer noch net aaaaaaaaaaaaaaaaaaahhhhhhhhhhhhhhh)
-
+M = Menu  
 
 
 
