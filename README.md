@@ -8,6 +8,7 @@ Steuerung:
 Classic Tetris:
 
 A = links bewegen
+
 D = rechts bewegen
 S = schneller runter
 Space = Block drehen 
