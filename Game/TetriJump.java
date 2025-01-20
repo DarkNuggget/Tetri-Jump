@@ -27,21 +27,21 @@ public class TetriJump {
     private TetriGui app;
     private MusikPlayer musikPlayer;
     private StartScreen startScreen;
-    private boolean menuIsOpen = false;
     private static final int TILE_SIZE = 30;
 
-    private int WIDTH = 20;
-    private int HEIGHT = 22;
+    public static int WIDTH = 20;
+    public static int HEIGHT = 22;
     private Color[][] grid = new Color[HEIGHT][WIDTH];
     private Timeline gameLoop;
     private Tetromino currentTetromino;
+    private InGameMenu menu = new InGameMenu();
   
-   public TetriJump(Stage primaryStage, TetriGui app) {
-    this.primaryStage = primaryStage;
-    this.app = app;
-    this.musikPlayer = new MusikPlayer(); // MusikPlayer instanziieren
-    createGame(primaryStage, 20, 22);
-}
+    public TetriJump(Stage primaryStage, TetriGui app) {
+        this.primaryStage = primaryStage;
+        this.app = app;
+        this.musikPlayer = new MusikPlayer(); // MusikPlayer instanziieren
+        createGame(primaryStage, 20, 22);
+    }
 
     public void createGame(Stage primaryStage, int width, int height) {
         Pane root = new Pane();
@@ -55,7 +55,6 @@ public class TetriJump {
         gameScene.setOnKeyPressed(event -> handleKeyPress(event));
 
         startGame(gc);
-       
 
     }
 
@@ -70,65 +69,6 @@ public class TetriJump {
         gameLoop.play();
     }
 
-    // In-Game Menü als Overlay
-    public void InGameMenu(Pane gameRoot) {
-        if (!menuIsOpen) {  // Überprüfen, ob das Menü nicht bereits geöffnet ist
-            menuIsOpen = true;  // Setze den Menüstatus auf offen
-            
-            // VBox für das Menü
-            VBox modeRoot = new VBox(30);
-            modeRoot.setAlignment(Pos.CENTER);
-
-            // Setze den Hintergrund des Menüs transparent und mit einem halbtransparenten schwarzen Overlay
-            modeRoot.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);"); // 70% Transparenz
-
-            // Titeltext für das Menü
-            Text menuTitle = new Text("In-Game Menu");
-            menuTitle.setFont(new Font(30));
-            menuTitle.setFill(Color.WHITE);
-
-            // Resume-Button
-            Button resumeButton = new Button("Resume Game");
-            resumeButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-            resumeButton.setOnAction(event -> {
-                gameRoot.getChildren().remove(modeRoot);  // Entferne das Menü
-                menuIsOpen = false;  // Menüstatus zurücksetzen
-            });
-
-            // Options-Button (öffnet das Einstellungsfenster)
-            Button optionsButton = new Button("Options");
-            optionsButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-            optionsButton.setOnAction(event -> musikPlayer.showOptionsWindow()); // Ruft die Methode auf
-
-            // Main-Menu Button
-            Button mainButton = new Button("Main Menu");
-            mainButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-            mainButton.setOnAction(event -> {;  
-                menuIsOpen = false;
-                
-                app.showStartScreen();  // Zeige den Startbildschirm       
-            });     
-            
-            Button exitButton = new Button("Exit");
-            exitButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-            exitButton.setOnAction(event -> System.exit(0));
-          
-            // Füge alle Buttons zum Menü hinzu
-            modeRoot.getChildren().addAll(menuTitle, resumeButton, optionsButton, mainButton, exitButton);
-
-            // Füge das Menü als Overlay zum Spielfeld hinzu
-            gameRoot.getChildren().add(modeRoot);
-
-            // Animation, um das Menü von der Seite hereinzuschieben
-            TranslateTransition transition = new TranslateTransition(Duration.seconds(0.5), modeRoot);
-            transition.setFromX(600);  // Startet außerhalb des Bildschirms
-            transition.setToX(0);      // Bewegt es auf die ursprüngliche Position
-            transition.play();
-        } else {
-            System.out.println("Menu ist schon offen");
-        }
-    }
-    
     private void updateGame() {
         if (canMove(currentTetromino, 0, 1)) {
             currentTetromino.moveDown();
@@ -137,7 +77,6 @@ public class TetriJump {
             clearFullRows();
             currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
         }
-    
     }
 
     private void render(GraphicsContext gc) {
@@ -155,14 +94,13 @@ public class TetriJump {
 
         // Render the current tetromino
         currentTetromino.render(gc, TILE_SIZE);
-    
     }
 
-    private boolean canMove(Tetromino tetromino, int dx, int dy) {
+    public boolean canMove(Tetromino tetromino, int dx, int dy) {
         return tetromino.canMove(grid, dx, dy);
     }
 
-    private void fixTetromino(Tetromino tetromino) {
+    public void fixTetromino(Tetromino tetromino) {
         tetromino.fixToGrid(grid);
     }
 
@@ -182,7 +120,6 @@ public class TetriJump {
                 grid[0] = new Color[WIDTH];
             }
         }
-    
     }
 
     private void handleKeyPress(KeyEvent event) {
@@ -199,17 +136,23 @@ public class TetriJump {
             case S:
                 currentTetromino.moveDown();
                 break;
-            case M:   
-                InGameMenu((Pane) gameScene.getRoot());  // Übergibt das Spielfeld-Pane (root) als Argument
-                menuIsOpen = true;
-                break;                         
+            case M: 
+                menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
+                break;                        
             default:
                 System.out.println("Falsche Taste");
         }
-     
+    }
+  
+    public Tetromino getCurrentTetromino() {
+      return currentTetromino;
+    }
+  
+    public Color[][] getGrid() {
+      return grid;
     }
 
     public Scene getGameScene() {
         return this.gameScene;
-    } 
+    }
 }
