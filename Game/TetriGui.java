@@ -1,36 +1,27 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.Stage;   
+import javafx.stage.Stage;
 
 public class TetriGui extends Application {
     private Stage primaryStage;
     private TetriJump tetriJump;
+    private TetriAutoGame tetriAutoGame;
     private MusikPlayer musikPlayer;
-    @Override
   
+    @Override
     public void start(Stage primaryStage) {
-        this.primaryStage = primaryStage;
         this.musikPlayer = new MusikPlayer();
-        showStartScreen();
+        showStartScreen(primaryStage);
     }
 
-    public void showStartScreen() {
-       
+    public void showStartScreen(Stage primaryStage) {
+        this.primaryStage = primaryStage;
         StartScreen startScreen = new StartScreen(this);
         Scene startScene = startScreen.getScene();
         primaryStage.setTitle("TetriGui - Start");
-        primaryStage.setScene(startScene);   
+        primaryStage.setScene(startScene);
         primaryStage.setResizable(false);
-        primaryStage.show();  
-           if (musikPlayer != null) {
-            System.out.println("MusikPlayer ist vorhanden!");
-            musikPlayer.stopMusik();
-      } else {
-            System.out.println("MusikPlayer ist null!");
-        
-      }
-
-        
+        primaryStage.show();
     }
 
     public void startGame() {
@@ -50,7 +41,7 @@ public class TetriGui extends Application {
             case "Classic Tetris":
                 startGame();
                 break;
-            case "JumpTetris":
+            case "Jump Tetris":
                 startJumpTetris();
                 break;
             default:
@@ -59,11 +50,13 @@ public class TetriGui extends Application {
     }
   
     public void startJumpTetris() {
-      // Hallo tobi hir bin ich die metho wo du bitte das spiel mit dem bot machst top ;)
-    }
-  
-    public void showStartScreenFromGame() {  
-        showStartScreen();
+       System.out.println("AUTOGAME");
+       TetriAutoGame tetriAutoGame = new TetriAutoGame(primaryStage, this);
+       Scene gameScene = tetriAutoGame.getGameScene();
+       primaryStage.setTitle("TetriAutoGame - ALPHA");
+       primaryStage.setScene(gameScene);
+       primaryStage.setResizable(false);
+       primaryStage.show();
     }
 
     public static void main(String[] args) {
