@@ -14,13 +14,12 @@ import java.util.List;
 public class TetriJumpShop extends Application {
 
     private Stage primaryStage;
-    private MusikPlayer musikPlayer;
     private String activeSkin = "Skin 1"; // Standard-Skin
 
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        this.musikPlayer = new MusikPlayer();
+      
         showStartScreen();
     }
 
