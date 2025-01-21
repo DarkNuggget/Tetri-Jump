@@ -5,7 +5,7 @@ public class LautstaerkeEinstellungen {
     private static final String SETTINGS_FILE = "audioSettings.properties";
 
     // Speichert die Lautstärke in einer Datei
-    public static void saveVolumeSetting(double volume) {
+    public static void saveaVolumeSetting(double volume) {
         Properties properties = new Properties();
         properties.setProperty("volume", String.valueOf(volume));
 
