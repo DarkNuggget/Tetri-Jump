@@ -6,17 +6,17 @@ public class TetriGui extends Application {
     private Stage primaryStage;
     private TetriJump tetriJump;
     private TetriAutoGame tetriAutoGame;
-    private MusikPlayer musikPlayer;
+    private StartScreen startScreen;
   
     @Override
     public void start(Stage primaryStage) {
-        this.musikPlayer = new MusikPlayer();
+        
         showStartScreen(primaryStage);
     }
 
     public void showStartScreen(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        StartScreen startScreen = new StartScreen(this);
+        startScreen = new StartScreen(this);
         Scene startScene = startScreen.getScene();
         primaryStage.setTitle("TetriGui - Start");
         primaryStage.setScene(startScene);
