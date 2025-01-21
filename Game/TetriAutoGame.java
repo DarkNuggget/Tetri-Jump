@@ -25,7 +25,6 @@ public class TetriAutoGame {
     private Scene gameScene;
     private Stage primaryStage;
     private TetriGui app;
-    private MusikPlayer musikPlayer;
     private StartScreen startScreen;
     private static final int TILE_SIZE = 30;
 
@@ -39,7 +38,6 @@ public class TetriAutoGame {
     public TetriAutoGame(Stage primaryStage, TetriGui app) {
         this.primaryStage = primaryStage;
         this.app = app;
-        this.musikPlayer = new MusikPlayer(); // MusikPlayer instanziieren
         createGame(primaryStage, 20, 22);
     }
 
