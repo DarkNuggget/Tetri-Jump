@@ -11,7 +11,7 @@ import javafx.util.Duration;
 import javafx.stage.Stage;
 
 public class InGameMenu {
-    private MusikPlayer musikPlayer;
+
     private TetriGui app = new TetriGui();
     private VBox modeRoot;
 
@@ -30,11 +30,6 @@ public class InGameMenu {
             resumeButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
             resumeButton.setOnAction(event -> gameRoot.getChildren().remove(modeRoot)); //TODO: PLAYER STOPPEN
 
-            // Options-Button
-            Button optionsButton = new Button("Options");
-            optionsButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-            optionsButton.setOnAction(event -> musikPlayer.showOptionsWindow());
-
             // Main-Menu Button
             Button mainButton = new Button("Main Menu");
             mainButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
@@ -48,7 +43,7 @@ public class InGameMenu {
             exitButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
             exitButton.setOnAction(event -> System.exit(0));
 
-            modeRoot.getChildren().addAll(menuTitle, resumeButton, optionsButton, mainButton, exitButton);
+            modeRoot.getChildren().addAll(menuTitle, resumeButton, mainButton, exitButton);
         }
 
         if (!gameRoot.getChildren().contains(modeRoot)) {
