@@ -14,20 +14,23 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
-import java.io.File;
 import javafx.util.Duration;
+
+import java.io.File;
 
 public class StartScreen {
     private TetriGui app;
     private Scene scene;
-  
+    private MusikPlayer musikPlayer;
 
     public StartScreen(TetriGui app) {
         this.app = app;
+        this.musikPlayer = new MusikPlayer(); // MusikPlayer instanziieren
         createUI();
     }
 
     public void createUI() {
+        musikPlayer.startMenuMusik(); // Menü-Musik starten
 
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
@@ -47,6 +50,8 @@ public class StartScreen {
         title.setFont(new Font(50));
         title.setFill(Color.WHITE);
         title.setStyle("-fx-font-weight: bold;");
+        
+        
 
         // Start-Button
         Button startButton = new Button("Start Game");
@@ -56,9 +61,18 @@ public class StartScreen {
         // Exit-Button
         Button exitButton = new Button("Exit");
         exitButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-        exitButton.setOnAction(event -> System.exit(0));
+        exitButton.setOnAction(event -> {
+            musikPlayer.stopMusik(); // Stoppe Musik, wenn das Spiel beendet wird
+            System.exit(0);
+        });
+
+        // Options-Button
+        Button optionsButton = new Button("Options");
+        optionsButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
+        optionsButton.setOnAction(event -> musikPlayer.showOptionsWindow());
+
         // Buttons zur VBox hinzufügen
-        root.getChildren().addAll(title, startButton, exitButton);
+        root.getChildren().addAll(title, startButton, optionsButton, exitButton);
 
         // Szene erstellen
         scene = new Scene(root, 596, 672);
@@ -95,9 +109,11 @@ public class StartScreen {
                 String mode = selectedMode.getText();
                 System.out.println("Starting game in mode: " + mode);
                 modeStage.close();
+
                 app.startGameWithMode(mode); // Spiel im ausgewählten Modus starten
             }
-           
+            musikPlayer.stopMusik(); // Stoppe die Menü-Musik
+            musikPlayer.startGameMusik(); // Spiele die Spiel-Musik
         });
 
         modeRoot.getChildren().addAll(modeTitle, classicTetris, jumpTetris, startModeButton);
@@ -106,8 +122,6 @@ public class StartScreen {
         modeStage.setScene(modeScene);
         modeStage.show();
     }
-
-   
 
     public Scene getScene() {
         return this.scene;
