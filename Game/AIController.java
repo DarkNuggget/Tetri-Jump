@@ -1,135 +1,133 @@
-import javafx.animation.AnimationTimer;
+import java.util.ArrayList;
+import java.util.List;
 import javafx.scene.paint.Color;
 
 public class AIController {
     private TetriAutoGame game;
     private Tetromino currentTetromino;
+    private Color[][] grid;
 
     public AIController(TetriAutoGame game) {
         this.game = game;
     }
 
     public void startAI() {
-        AnimationTimer aiLoop = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                if (currentTetromino == null || !game.getCurrentTetromino().equals(currentTetromino)) {
-                    currentTetromino = game.getCurrentTetromino();
-                    makeBestMove();
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(2000);    //2 sek bis zum neu spawnen
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+        
+                currentTetromino = game.getCurrentTetromino();
+                grid = game.getGrid();
+
+                AIMove bestMove = calculateBestMove();
+                executeMove(bestMove);
             }
-        };
-        aiLoop.start();
+        }).start();
     }
 
-    private void makeBestMove() {
-        Color[][] grid = game.getGrid();
-        int bestX = 0;
-        int bestRotation = 0;
-        double bestScore = Double.NEGATIVE_INFINITY;
+    private AIMove calculateBestMove() {
+        List<AIMove> possibleMoves = new ArrayList<>();
 
-        // alle möglichen rotationen
+        //0°, 90°, 180°, 270°
         for (int rotation = 0; rotation < 4; rotation++) {
-            Tetromino testTetromino = copyTetromino(currentTetromino);
+            Tetromino simulatedTetromino = cloneTetromino(currentTetromino);
+
+            // rptate
             for (int r = 0; r < rotation; r++) {
-                testTetromino.rotate();
-            }
-
-            // alle mögliche positionen
-            for (int x = -testTetromino.getWidth(); x < TetriJump.WIDTH; x++) {
-                Tetromino temp = copyTetromino(testTetromino);
-                temp.setPosition(x, 0);
-
-                while (game.canMove(temp, 0, 1)) {
-                    temp.moveDown();
-                }
-
-                double score = evaluatePosition(temp, grid);
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestX = x;
-                    bestRotation = rotation;
+                if (simulatedTetromino.canRotate(grid)) {
+                    simulatedTetromino.rotate();
                 }
             }
-        }
 
-        // Execute the best move
-        executeMove(bestX, bestRotation);
-    }
+            // horizontal (funktioniert nicht vollständig)
+            for (int x = -simulatedTetromino.getWidth(); x < game.WIDTH; x++) {
+                Tetromino testTetromino = cloneTetromino(simulatedTetromino);
+                testTetromino.setPosition(x, testTetromino.getY());
 
-    private void executeMove(int targetX, int targetRotation) {
-        Tetromino tetromino = game.getCurrentTetromino();
+                // fall animation
+                while (game.canMove(testTetromino, 0, 1)) {
+                    testTetromino.moveDown();
+                }
 
-        // Rotate to the target rotation
-        for (int i = 0; i < targetRotation; i++) {
-            tetromino.rotate();
-        }
-
-        // Move to the target X position
-        int deltaX = targetX - tetromino.getX();
-        if (deltaX > 0) {
-            for (int i = 0; i < deltaX; i++) {
-                tetromino.moveRight();
-            }
-        } else if (deltaX < 0) {
-            for (int i = 0; i < -deltaX; i++) {
-                tetromino.moveLeft();
+                int score = evaluatePosition(testTetromino);
+                possibleMoves.add(new AIMove(x, rotation, score));
             }
         }
 
-        // Drop the tetromino
-        while (game.canMove(tetromino, 0, 1)) {
-            tetromino.moveDown();
+        AIMove bestMove = possibleMoves.get(0);
+        for (AIMove move : possibleMoves) {
+            if (move.score > bestMove.score) {
+                bestMove = move;
+            }
         }
-        game.fixTetromino(tetromino);
+
+        return bestMove;
     }
-
-    private double evaluatePosition(Tetromino tetromino, Color[][] grid) {
-        int rowsCleared = calculateRowsCleared(tetromino, grid);
-        int holes = calculateHoles(tetromino, grid);
-        int height = calculateAggregateHeight(tetromino, grid);
-
-        // Weight parameters
-        double weightRowsCleared = 10.0;
-        double weightHoles = -5.0;
-        double weightHeight = -1.0;
-
-        return rowsCleared * weightRowsCleared + holes * weightHoles + height * weightHeight;
+  
+  //Simulation
+    private int evaluatePosition(Tetromino tetromino) {
+        Color[][] simulatedGrid = cloneGrid(grid);
+        tetromino.fixToGrid(simulatedGrid);
+    
+        int score = 0;
+    
+        // 1. anzahl voller reihen (fehler)
+        score += countFullRows(simulatedGrid) * 1000;
+        // 2. höhe der säule (fehler)
+        score -= getMaxHeight(simulatedGrid) * 10;
+        // 3. holes anzahl
+        score -= countHoles(simulatedGrid) * 50;
+        // 4. roughness (fehler)
+        score -= calculateRoughness(simulatedGrid) * 20;
+        // 5. Potenzielle Löcher
+        score -= countPotentialHoles(simulatedGrid) * 30;
+    
+        return score;
     }
-
-    private int calculateRowsCleared(Tetromino tetromino, Color[][] grid) {
-        // Simulate adding the tetromino to the grid and count full rows
-        Color[][] tempGrid = copyGrid(grid);
-        tetromino.fixToGrid(tempGrid);
-        int rowsCleared = 0;
-
-        for (int y = 0; y < tempGrid.length; y++) {
-            boolean fullRow = true;
-            for (int x = 0; x < tempGrid[0].length; x++) {
-                if (tempGrid[y][x] == null) {
-                    fullRow = false;
+  
+    //unnötig
+    private int countFullRows(Color[][] grid) {
+        int fullRows = 0;
+        for (int y = 0; y < grid.length; y++) {
+            boolean isFull = true;
+            for (int x = 0; x < grid[y].length; x++) {
+                if (grid[y][x] == null) {
+                    isFull = false;
                     break;
                 }
             }
-            if (fullRow) {
-                rowsCleared++;
+            if (isFull) {
+                fullRows++;
             }
         }
-        return rowsCleared;
+        return fullRows;
     }
 
-    private int calculateHoles(Tetromino tetromino, Color[][] grid) {
-        // Count empty cells below filled cells in each column
-        Color[][] tempGrid = copyGrid(grid);
-        tetromino.fixToGrid(tempGrid);
-        int holes = 0;
+    private int getMaxHeight(Color[][] grid) {
+        int maxHeight = 0;
+        for (int x = 0; x < grid[0].length; x++) {
+            for (int y = 0; y < grid.length; y++) {
+                if (grid[y][x] != null) {
+                    maxHeight = Math.max(maxHeight, grid.length - y);
+                    break;
+                }
+            }
+        }
+        return maxHeight;
+    }
 
-        for (int x = 0; x < tempGrid[0].length; x++) {
-            boolean blockFound = false;
-            for (int y = 0; y < tempGrid.length; y++) {
-                if (tempGrid[y][x] != null) {
-                    blockFound = true;
-                } else if (blockFound) {
+    private int countHoles(Color[][] grid) {
+        int holes = 0;
+        for (int x = 0; x < grid[0].length; x++) {
+            boolean foundBlock = false;
+            for (int y = 0; y < grid.length; y++) {
+                if (grid[y][x] != null) {
+                    foundBlock = true;
+                } else if (foundBlock) {
                     holes++;
                 }
             }
@@ -137,32 +135,95 @@ public class AIController {
         return holes;
     }
 
-    private int calculateAggregateHeight(Tetromino tetromino, Color[][] grid) {
-        // Calculate the total column heights
-        Color[][] tempGrid = copyGrid(grid);
-        tetromino.fixToGrid(tempGrid);
-        int height = 0;
-
-        for (int x = 0; x < tempGrid[0].length; x++) {
-            for (int y = 0; y < tempGrid.length; y++) {
-                if (tempGrid[y][x] != null) {
-                    height += tempGrid.length - y;
-                    break;
-                }
+    private void executeMove(AIMove move) {
+        for (int r = 0; r < move.rotation; r++) {
+            if (currentTetromino.canRotate(grid)) {
+                currentTetromino.rotate();
             }
         }
-        return height;
-    }
 
-    private Tetromino copyTetromino(Tetromino tetromino) {
-        return new Tetromino(tetromino.getShape(), tetromino.getX(), tetromino.getY(), tetromino.getColor());
-    }
-
-    private Color[][] copyGrid(Color[][] grid) {
-        Color[][] copy = new Color[grid.length][grid[0].length];
-        for (int y = 0; y < grid.length; y++) {
-            System.arraycopy(grid[y], 0, copy[y], 0, grid[0].length);
+        //zu bester positon bewegen
+        int targetX = move.x;
+        while (currentTetromino.getX() != targetX) {
+            if (currentTetromino.getX() < targetX && game.canMove(currentTetromino, 1, 0)) {
+                currentTetromino.moveRight();
+            } else if (currentTetromino.getX() > targetX && game.canMove(currentTetromino, -1, 0)) {
+                currentTetromino.moveLeft();
+            } else {
+                break;
+            }
         }
-        return copy;
+
+        //fall animation
+        while (game.canMove(currentTetromino, 0, 1)) {
+            currentTetromino.moveDown();
+        }
     }
+
+    private Tetromino cloneTetromino(Tetromino tetromino) {
+        int[][] shape = tetromino.getShape();
+        int x = tetromino.getX();
+        int y = tetromino.getY();
+        Color color = tetromino.getColor();
+        return new Tetromino(shape, x, y, color);
+    }
+
+    private Color[][] cloneGrid(Color[][] grid) {
+        Color[][] newGrid = new Color[grid.length][grid[0].length];
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 0; x < grid[y].length; x++) {
+                newGrid[y][x] = grid[y][x];
+            }
+        }
+        return newGrid;
+    }
+
+    private static class AIMove {  //muss  noch ausgelagert werden in einzelnes dokument
+        int x;          // Ziel-X-Position
+        int rotation;   // Anzahl der Rotationen
+        int score;      // Bewertung des Zuges
+
+        AIMove(int x, int rotation, int score) {
+            this.x = x;
+            this.rotation = rotation;
+            this.score = score;
+        }
+    }
+  
+    private int calculateRoughness(Color[][] grid) {
+        int roughness = 0;
+        for (int x = 1; x < grid[0].length; x++) {
+            int heightLeft = getColumnHeight(grid, x - 1);
+            int heightRight = getColumnHeight(grid, x);
+            roughness += Math.abs(heightLeft - heightRight);
+        }
+        return roughness;
+    }
+
+    private int getColumnHeight(Color[][] grid, int x) {
+        for (int y = 0; y < grid.length; y++) {
+            if (grid[y][x] != null) {
+                return grid.length - y;
+            }
+        }
+        return 0;
+    }
+  
+    private int countPotentialHoles(Color[][] grid) {
+      int potentialHoles = 0;
+      for (int x = 0; x < grid[0].length; x++) {
+          boolean foundBlock = false;
+          for (int y = 0; y < grid.length; y++) {
+              if (grid[y][x] != null) {
+                  foundBlock = true;
+              } else if (foundBlock) {
+                  // Überprüfe, ob das Loch vermeidbar ist
+                  if (y < grid.length - 1 && grid[y + 1][x] == null) {
+                      potentialHoles++;
+                  }
+              }
+          }
+      }
+      return potentialHoles;
+  }
 }
