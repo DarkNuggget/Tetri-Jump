@@ -42,20 +42,20 @@ public class TetriAutoGame {
     }
 
     public void createGame(Stage primaryStage, int width, int height) {
-    Pane root = new Pane();
-    root.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-    Canvas canvas = new Canvas(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
-    GraphicsContext gc = canvas.getGraphicsContext2D();
-
-    root.getChildren().add(canvas);
-
-    gameScene = new Scene(root, width * TILE_SIZE, height * TILE_SIZE);
-    gameScene.setOnKeyPressed(event -> handleKeyPress(event));
-                   
-    AIController aiController = new AIController(this);
-    aiController.startAI();
+        Pane root = new Pane();
+        root.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        Canvas canvas = new Canvas(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
     
-    startGame(gc);  
+        root.getChildren().add(canvas);
+    
+        gameScene = new Scene(root, width * TILE_SIZE, height * TILE_SIZE);
+        gameScene.setOnKeyPressed(event -> handleKeyPress(event));
+                       
+        AIController aiController = new AIController(this);
+        aiController.startAI();
+        
+        startGame(gc);  
     }
 
     private void startGame(GraphicsContext gc) {
