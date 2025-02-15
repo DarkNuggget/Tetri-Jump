@@ -115,7 +115,7 @@ public class StartScreen {
                 Screen(); 
                 //app.startGameWithMode(mode); // Spiel im ausgewählten Modus starten
         
-        System.out.println("kannst wieder umstellen indem du in zeile 115 löscht und zeile 116 wie einfügst ");
+        System.out.println("kannst wieder beim startScreen umstellen indem du in zeile 115 löscht und zeile 116 wie einfügst ");
             }
             musikPlayer.stopMusik(); // Stoppe die Menü-Musik
             musikPlayer.startGameMusik(); // Spiele die Spiel-Musik
