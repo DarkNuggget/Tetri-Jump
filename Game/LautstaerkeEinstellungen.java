@@ -28,5 +28,5 @@ public class LautstaerkeEinstellungen {
             e.printStackTrace();
             return 0.5; // Standardwert
         }
-    }
+     } 
 }
