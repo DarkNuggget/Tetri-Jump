@@ -48,9 +48,9 @@ public class MusikPlayer {
         gameMusikListe.add("GameMusik7.mp3");
         
         // Füge Musikstücke zur Menü-Musikliste hinzu
-        menuMusikListe.add("MenuMusik1.mp3");
+//        menuMusikListe.add("MenuMusik1.mp3");
         menuMusikListe.add("MenuMusik2.mp3");
-        menuMusikListe.add("MenuMusik3.mp3");
+//        menuMusikListe.add("MenuMusik3.mp3");
     }
 
     // Startet die Menü-Musik (zufällig aus der Menü-Liste)
