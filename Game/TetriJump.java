@@ -113,7 +113,7 @@ public class TetriJump {
             }
             if (isFull) {
                 for (int row = y; row > 0; row--) {
-                    grid[row] = grid[row - 1].clone();
+                    grid[row] = grid[row - 1].clone();  
                 }
                 grid[0] = new Color[WIDTH];
             }
