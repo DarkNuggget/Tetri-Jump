@@ -53,6 +53,6 @@ public class InGameMenu {
             transition.setFromX(600);
             transition.setToX(0);
             transition.play();
-        }
+         }
     }
 }
