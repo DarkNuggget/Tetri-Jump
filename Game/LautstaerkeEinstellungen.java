@@ -11,7 +11,7 @@ public class LautstaerkeEinstellungen {
 
         try (FileOutputStream output = new FileOutputStream(SETTINGS_FILE)) {
             properties.store(output, "Audio Settings");
-            System.out.println("Lautstärke gespeichert: " + volume);
+           
         } catch (IOException e) {
             e.printStackTrace();
         }
