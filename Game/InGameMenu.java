@@ -15,7 +15,7 @@ public class InGameMenu {
     private TetriGui app = new TetriGui();
     private VBox modeRoot;
     public final static MusikPlayer musikPlayer = new MusikPlayer();
-
+    
 
     public void loadMenu(Pane gameRoot, Stage primaryStage) {
         if (modeRoot == null) {
@@ -32,9 +32,13 @@ public class InGameMenu {
             resumeButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
             resumeButton.setOnAction(event -> {
                 gameRoot.getChildren().remove(modeRoot);
-                musikPlayer.startGameMusik();
+                
             });
-
+      
+            Button optionsButton = new Button("Options");
+            optionsButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
+            optionsButton.setOnAction(event -> musikPlayer.showOptionsWindow());
+      
             // Main-Menu Button
             Button mainButton = new Button("Main Menu");
             mainButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
@@ -48,12 +52,12 @@ public class InGameMenu {
             exitButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
             exitButton.setOnAction(event -> System.exit(0));
 
-            modeRoot.getChildren().addAll(menuTitle, resumeButton, mainButton, exitButton);
+            modeRoot.getChildren().addAll(menuTitle, resumeButton, mainButton, optionsButton, exitButton);
         }
 
         if (!gameRoot.getChildren().contains(modeRoot)) {
             gameRoot.getChildren().add(modeRoot);
-            musikPlayer.stoppeAktuelleMusik();
+           
            // musikPlayer.startMenuMusik();
 
             TranslateTransition transition = new TranslateTransition(Duration.seconds(0.5), modeRoot);
