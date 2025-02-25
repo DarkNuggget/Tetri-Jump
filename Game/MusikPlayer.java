@@ -17,6 +17,7 @@ public class MusikPlayer {
     private ArrayList<String> gameMusikListe;
     private ArrayList<String> menuMusikListe;
     private double aktuelleLautstaerke;
+    private String letzterSong;  // Speichert den zuletzt abgespielten Song
 
     public MusikPlayer() {
         this.aktuelleLautstaerke = 0.5;
@@ -33,6 +34,8 @@ public class MusikPlayer {
         gameMusikListe.add("GameMusik7.mp3");
 
         menuMusikListe.add("MenuMusik2.mp3");
+        
+        letzterSong = "";  // Zu Beginn gibt es keinen letzten Song
     }
 
     public double getAktuelleLautstaerke() {
@@ -56,7 +59,6 @@ public class MusikPlayer {
         }
     }
 
-
     // Startet die Menü-Musik
     public void startMenuMusik() {
         starteMusik(menuMusikListe, "MenuMusik"); 
@@ -66,7 +68,7 @@ public class MusikPlayer {
     public void startGameMusik() {
         starteMusik(gameMusikListe, "GameMusik");
     }
-  
+
     private void starteMusik(ArrayList<String> musikListe, String ordner) {
         System.out.println(this);
         stoppeAktuelleMusik();
@@ -74,28 +76,40 @@ public class MusikPlayer {
         File musicFile = new File("Musik/" + ordner + "/" + ausgewaehlteMusik);
 
         if(musicFile.exists()) {
+            letzterSong = ausgewaehlteMusik;  // Speichere den zuletzt abgespielten Song
             setUpMediaPlayer(musicFile);
         } else {
             System.out.println("Musikdatei " + musicFile.getName() + " wurde nicht gefunden.");
         }
     }
 
-    // Wählt zufällig ein Musikstück aus der Liste
+    // Wählt zufällig ein Musikstück aus der Liste, aber nicht den zuletzt abgespielten Song
     private String waehleZufaelligeMusik(List<String> musikListe) {
         Random random = new Random();
-        return musikListe.get(random.nextInt(musikListe.size()));
+        String ausgewaehlteMusik;
+        do {
+            ausgewaehlteMusik = musikListe.get(random.nextInt(musikListe.size()));
+        } while (ausgewaehlteMusik.equals(letzterSong));  // Verhindert, dass der letzte Song erneut gespielt wird
+   
+        return ausgewaehlteMusik;
     }
-  
+
     private void setUpMediaPlayer(File musicFile) {
         Media media = new Media(musicFile.toURI().toString());
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setVolume(this.getAktuelleLautstaerke());
-        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        mediaPlayer.setCycleCount(1);  // Einmaliges Abspielen des Songs
         mediaPlayer.play();
+        
+        // Wenn der Song zu Ende ist, starte den nächsten
+        mediaPlayer.setOnEndOfMedia(() -> {
+            System.out.println("Song zu Ende, nächster Song wird abgespielt.");
+            starteMusik(gameMusikListe, "GameMusik");  // Hier könnte auch eine andere Liste wie menuMusikListe verwendet werden
+        });
     }
 
     // Zeigt das Einstellungsfenster für die Lautstärke
-     public void showOptionsWindow() {
+    public void showOptionsWindow() {
         Stage optionsStage = new Stage();
         optionsStage.setTitle("Optionen");
 
