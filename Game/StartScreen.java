@@ -21,6 +21,9 @@ import javafx.util.Duration;
 import java.io.File;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+
 
 public class StartScreen {
     private TetriGui app;
@@ -57,14 +60,18 @@ public class StartScreen {
         Button startButton = new Button("Start Game");
         startButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
         startButton.setOnAction(event -> showModeSelection());
-
+    
+        Button optionsButton = new Button("Options");
+        optionsButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
+        optionsButton.setOnAction(event -> showVolumeSettings());
+    
         // Exit-Button
         Button exitButton = new Button("Exit");
         exitButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
         exitButton.setOnAction(event -> System.exit(0));
 
         // Buttons zur VBox hinzufügen
-        root.getChildren().addAll(title, startButton, exitButton);
+        root.getChildren().addAll(title, startButton, optionsButton, exitButton);
 
         // Szene erstellen
         scene = new Scene(root, 596, 672);
@@ -112,6 +119,39 @@ public class StartScreen {
         modeStage.setScene(modeScene);
         modeStage.show();
     }
+  
+   public void showVolumeSettings() {
+        // Neues Fenster für Lautstärke-Einstellungen
+        Stage volumeStage = new Stage();
+        volumeStage.setTitle("Volume Settings");
+
+        VBox volumeRoot = new VBox(20);
+        volumeRoot.setAlignment(Pos.CENTER);
+
+        // Lautstärke Label und Slider
+        Label volumeLabel = new Label("Adjust Volume:");
+        Slider volumeSlider = new Slider(0, 100, LautstaerkeEinstellungen.loadVolumeSetting() * 100);
+        volumeSlider.setBlockIncrement(1);
+        volumeSlider.setShowTickLabels(true);
+        volumeSlider.setShowTickMarks(true);
+
+        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            double volume = newValue.doubleValue() / 100;
+            LautstaerkeEinstellungen.saveaVolumeSetting(volume);
+            InGameMenu.musikPlayer.setAktuelleLautstaerke(volume);
+        });
+
+        // Button zum Schließen des Fensters
+        Button closeButton = new Button("Close");
+        closeButton.setOnAction(event -> volumeStage.close());
+
+        volumeRoot.getChildren().addAll(volumeLabel, volumeSlider, closeButton);
+
+        Scene volumeScene = new Scene(volumeRoot, 300, 200);
+        volumeStage.setScene(volumeScene);
+        volumeStage.show();
+    }
+
 
     public Scene getScene() {
         return this.scene;
