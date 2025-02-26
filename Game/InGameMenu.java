@@ -40,7 +40,7 @@ public class InGameMenu {
             mainButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
             mainButton.setOnAction(event -> {
                 System.out.println("quit");
-                app.showStartScreen(primaryStage);
+                app.showStartScreen();
                 musikPlayer.stoppeAktuelleMusik();
             });
 
