@@ -16,15 +16,17 @@ public class MusikPlayer {
     private MediaPlayer mediaPlayer;
     private ArrayList<String> gameMusikListe;
     private ArrayList<String> menuMusikListe;
+    private ArrayList<String> shopMusikListe;  // Neue Liste für die Shop-Musik
     private double aktuelleLautstaerke;
     private String letzterSong;  // Speichert den zuletzt abgespielten Song
     public boolean MenuOffen;
+
     public MusikPlayer() {
-        this.aktuelleLautstaerke = 0.5;
+        this.aktuelleLautstaerke = 0.3;
         menuMusikListe = new ArrayList<String>();
         gameMusikListe = new ArrayList<String>();
-    
-        gameMusikListe = new ArrayList<>();
+        shopMusikListe = new ArrayList<String>();  // Initialisierung der Shop-Musik-Liste
+
         gameMusikListe.add("GameMusik1.mp3");
         gameMusikListe.add("GameMusik2.mp3");
         gameMusikListe.add("GameMusik3.mp3");
@@ -33,8 +35,10 @@ public class MusikPlayer {
         gameMusikListe.add("GameMusik6.mp3");
         gameMusikListe.add("GameMusik7.mp3");
 
-        
         menuMusikListe.add("MenuMusik1.mp3");
+        
+        shopMusikListe.add("ShopMusik1.mp3");
+        //shopMusikListe.add("ShopMusik2.mp3");  // Hinzufügen der Shop-Musik-Datei
         
         letzterSong = "";  // Zu Beginn gibt es keinen letzten Song
     }
@@ -70,6 +74,11 @@ public class MusikPlayer {
         starteMusik(gameMusikListe, "GameMusik");
     }
 
+    // Startet die Shop-Musik
+    public void startShopMusik() {
+        starteMusik(shopMusikListe, "ShopMusik");  // Starte die Musik im Shop-Ordner
+    }
+
     private void starteMusik(ArrayList<String> musikListe, String ordner) {
         System.out.println(this);
         stoppeAktuelleMusik();
@@ -83,7 +92,7 @@ public class MusikPlayer {
         } else {
             System.out.println("Musikdatei " + musicFile.getName() + " wurde nicht gefunden.");
         }
-    System.out.println("ordner: " + ordner + "ausgewaehlteMusik" + ausgewaehlteMusik);
+        System.out.println("ordner: " + ordner + " ausgewaehlteMusik: " + ausgewaehlteMusik);
     }
 
     // Wählt zufällig ein Musikstück aus der Liste, aber nicht den zuletzt abgespielten Song
@@ -91,8 +100,7 @@ public class MusikPlayer {
         Random random = new Random();
         String ausgewaehlteMusik;
     
-    
-    do {
+        do {
             ausgewaehlteMusik = musikListe.get(random.nextInt(musikListe.size()));
         } while (ausgewaehlteMusik.equals(letzterSong));  // Verhindert, dass der letzte Song erneut gespielt wird
         System.out.println(ausgewaehlteMusik);
