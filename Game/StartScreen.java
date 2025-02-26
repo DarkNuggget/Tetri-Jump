@@ -28,6 +28,8 @@ public class StartScreen {
     private VBox mainMenuRoot; // Der Container für das Hauptmenü
     private boolean buttonsAdded = false; // Flag, um zu prüfen, ob die Buttons schon hinzugefügt wurden
     MusikPlayer musikPlayer;
+    
+  
     public StartScreen(TetriGui app) {
         this.app = app;
         createUI();
@@ -69,7 +71,15 @@ public class StartScreen {
         Button optionsButton = new Button("Options");
         optionsButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
         optionsButton.setOnAction(event -> showVolumeSettings());
-
+    
+        Button shopButton = new Button("Shop");
+        shopButton.setStyle("-fx-font-size: 18px;");
+        shopButton.setOnAction(e -> {;
+          InGameMenu.musikPlayer.stoppeAktuelleMusik();
+          InGameMenu.musikPlayer.startShopMusik();
+          app.openShop();
+        });  // Shop öffnen
+    
         // Exit-Button
         Button exitButton = new Button("Exit");
         exitButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
@@ -77,7 +87,7 @@ public class StartScreen {
     
 
         // Buttons zur VBox hinzufügen
-        mainMenuRoot.getChildren().addAll(title, startButton, optionsButton, exitButton);
+        mainMenuRoot.getChildren().addAll(title, startButton, optionsButton,shopButton, exitButton);
 
         // Szene erstellen
         scene = new Scene(mainMenuRoot, 596, 672);
