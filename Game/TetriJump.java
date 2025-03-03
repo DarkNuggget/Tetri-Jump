@@ -1,24 +1,14 @@
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;  // Füge dies hinzu
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.geometry.Insets;
-import javafx.util.Duration;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import javafx.scene.control.Button;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.geometry.Pos;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
-
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.Pane;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.canvas.Canvas;
 
 public class TetriJump {
 
@@ -34,7 +24,13 @@ public class TetriJump {
     private Timeline gameLoop;
     private Tetromino currentTetromino;
     private InGameMenu menu = new InGameMenu();
-  
+
+    // Neue Spielfigur
+    private Rectangle player;
+    private double playerX = 150; // Startposition der Spielfigur
+    private double playerY = 150; // Startposition der Spielfigur
+    private final double playerSpeed = TILE_SIZE; // Geschwindigkeit der Spielfigur
+
     public TetriJump(Stage primaryStage, TetriGui app) {
         this.primaryStage = primaryStage;
         this.app = app;
@@ -43,17 +39,20 @@ public class TetriJump {
 
     public void createGame(Stage primaryStage, int width, int height) {
         Pane root = new Pane();
-        root.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-        Canvas canvas = new Canvas(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        root.setStyle("-fx-background-color: black;"); // Hintergrundfarbe
 
+        Canvas canvas = new Canvas(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
         root.getChildren().add(canvas);
+
+        // Spielfigur hinzufügen
+        player = new Rectangle(playerX, playerY, TILE_SIZE, TILE_SIZE);
+        player.setFill(Color.RED); // Spielfigur in Rot
+        root.getChildren().add(player);
 
         gameScene = new Scene(root, width * TILE_SIZE, height * TILE_SIZE);
         gameScene.setOnKeyPressed(event -> handleKeyPress(event));
 
-        startGame(gc);
-
+        startGame(canvas.getGraphicsContext2D());
     }
 
     private void startGame(GraphicsContext gc) {
@@ -113,7 +112,7 @@ public class TetriJump {
             }
             if (isFull) {
                 for (int row = y; row > 0; row--) {
-                    grid[row] = grid[row - 1].clone();  
+                    grid[row] = grid[row - 1].clone();
                 }
                 grid[0] = new Color[WIDTH];
             }
@@ -134,20 +133,36 @@ public class TetriJump {
             case S:
                 currentTetromino.moveDown();
                 break;
-            case M: 
+            case M:
                 menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
-                break;                        
+                break;
+            // Steuerung der Spielfigur mit den Pfeiltasten
+            case UP:
+                playerY -= playerSpeed;
+                break;
+            case DOWN:
+                playerY += playerSpeed;
+                break;
+            case LEFT:
+                playerX -= playerSpeed;
+                break;
+            case RIGHT:
+                playerX += playerSpeed;
+                break;
             default:
                 System.out.println("Falsche Taste");
         }
+        // Position der Spielfigur aktualisieren
+        player.setX(playerX);
+        player.setY(playerY);
     }
-  
+
     public Tetromino getCurrentTetromino() {
-      return currentTetromino;
+        return currentTetromino;
     }
-  
+
     public Color[][] getGrid() {
-      return grid;
+        return grid;
     }
 
     public Scene getGameScene() {
