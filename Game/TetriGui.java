@@ -3,7 +3,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class TetriGui extends Application {
-    private Stage primaryStage; // Das Hauptfenster
+    private static Stage primaryStage; // Das Hauptfenster
     private TetriJump tetriJump;
     private TetriAutoGame tetriAutoGame;
     private StartScreen startScreen;
