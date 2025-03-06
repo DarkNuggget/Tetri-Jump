@@ -37,8 +37,8 @@ public class MusikPlayer {
 
         menuMusikListe.add("MenuMusik1.mp3");
         
-        shopMusikListe.add("ShopMusik1.mp3");
-        //shopMusikListe.add("ShopMusik2.mp3");  // Hinzufügen der Shop-Musik-Datei
+//        shopMusikListe.add("ShopMusik1.mp3");
+        shopMusikListe.add("ShopMusik2.mp3");  // Hinzufügen der Shop-Musik-Datei
         
         letzterSong = "";  // Zu Beginn gibt es keinen letzten Song
     }
