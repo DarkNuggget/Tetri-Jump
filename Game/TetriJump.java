@@ -1,88 +1,156 @@
-import javafx.application.Application;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;  // Füge dies hinzu
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.geometry.Insets;
+import javafx.util.Duration;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.scene.control.Button;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.geometry.Pos;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 
-public class TetriGui extends Application {
-    private static Stage primaryStage; // Das Hauptfenster
-    private TetriJump tetriJump;
-    private TetriAutoGame tetriAutoGame;
+
+public class TetriJump {
+
+    private Scene gameScene;
+    private Stage primaryStage;
+    private TetriGui app;
     private StartScreen startScreen;
-    private TetriJumpShop tetriJumpShop; // Das Shop-Objekt
+    private static final int TILE_SIZE = 30;
 
-    @Override
-    public void start(Stage primaryStage) {
+    public static int WIDTH = 20;
+    public static int HEIGHT = 22;
+    private Color[][] grid = new Color[HEIGHT][WIDTH];
+    private Timeline gameLoop;
+    private Tetromino currentTetromino;
+    private InGameMenu menu = new InGameMenu();
+  
+    public TetriJump(Stage primaryStage, TetriGui app) {
         this.primaryStage = primaryStage;
-        showStartScreen();  // Zeigt den Startbildschirm an
+        this.app = app;
+        createGame(primaryStage, 20, 22);
     }
 
-    // Methode um den Startbildschirm anzuzeigen
-    public void showStartScreen() {
-    if (primaryStage == null) {
-        System.err.println("primaryStage ist null. Kann den Startbildschirm nicht anzeigen.");
-        return;
+    public void createGame(Stage primaryStage, int width, int height) {
+        Pane root = new Pane();
+        root.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        Canvas canvas = new Canvas(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        root.getChildren().add(canvas);
+
+        gameScene = new Scene(root, width * TILE_SIZE, height * TILE_SIZE);
+        gameScene.setOnKeyPressed(event -> handleKeyPress(event));
+
+        startGame(gc);
+
     }
 
-    if (startScreen == null) {
-        startScreen = new StartScreen(this);  // Falls StartScreen noch nicht erstellt wurde
+    private void startGame(GraphicsContext gc) {
+        currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
+
+        gameLoop = new Timeline(new KeyFrame(Duration.millis(400), e -> {
+            updateGame();
+            render(gc);
+        }));
+        gameLoop.setCycleCount(Timeline.INDEFINITE);
+        gameLoop.play();
     }
 
-    Scene startScene = startScreen.getScene();
-    primaryStage.setTitle("TetriGui - Start");
-    primaryStage.setScene(startScene);
-    primaryStage.setResizable(false);
-    primaryStage.show();
-    System.out.println("Startbildschirm angezeigt.");
-}
-
-
-    // Methode um das Spiel zu starten
-    public void startGame() {
-        TetriJump jump = new TetriJump(primaryStage, this);
-        Scene gameScene = jump.getGameScene();
-        primaryStage.setTitle("TetriGui - Game");
-        primaryStage.setScene(gameScene);
-        primaryStage.setResizable(false);
-        primaryStage.show();
-    }
-
-    // Methode um den Shop zu öffnen
-   public void openShop() {
-    tetriJumpShop = new TetriJumpShop();
-    ShopScreen shopScreen = new ShopScreen(tetriJumpShop, this);  // Pass 'this' to ShopScreen constructor
-    Scene shopScene = shopScreen.getScene();
-    primaryStage.setScene(shopScene);
-    primaryStage.show();
-}
-
-
-    // Methode, um das Spiel im Classic Tetris-Modus zu starten
-    public void startGameWithMode(String mode) {
-        System.out.println("Starting game in mode: " + mode);
-        // Implementiere die Logik für jeden Modus
-        switch (mode) {
-            case "Classic Tetris":
-                startGame();
-                break;
-            case "Jump Tetris":
-                startJumpTetris();
-                break;
-            default:
-                System.out.println("Unknown game mode: " + mode);
+    private void updateGame() {
+        if (canMove(currentTetromino, 0, 1)) {
+            currentTetromino.moveDown();
+        } else {
+            fixTetromino(currentTetromino);
+            clearFullRows();
+            currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
         }
     }
 
-    // Methode um den Jump Tetris-Modus zu starten
-    public void startJumpTetris() {
-        System.out.println("AUTOGAME");
-        TetriAutoGame tetriAutoGame = new TetriAutoGame(primaryStage, this);
-        Scene gameScene = tetriAutoGame.getGameScene();
-        primaryStage.setTitle("TetriAutoGame - ALPHA");
-        primaryStage.setScene(gameScene);
-        primaryStage.setResizable(false);
-        primaryStage.show();
+    private void render(GraphicsContext gc) {
+        gc.clearRect(0, 0, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
+
+        // Render the fixed grid blocks (with their colors)
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                if (grid[y][x] != null) {
+                    gc.setFill(grid[y][x]);
+                    gc.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                }
+            }
+        }
+
+        // Render the current tetromino
+        currentTetromino.render(gc, TILE_SIZE);
     }
 
-    public static void main(String[] args) {
-        launch(args);  // Starte die Anwendung
+    public boolean canMove(Tetromino tetromino, int dx, int dy) {
+        return tetromino.canMove(grid, dx, dy);
+    }
+
+    public void fixTetromino(Tetromino tetromino) {
+        tetromino.fixToGrid(grid);
+    }
+
+    private void clearFullRows() {
+        for (int y = 0; y < HEIGHT; y++) {
+            boolean isFull = true;
+            for (int x = 0; x < WIDTH; x++) {
+                if (grid[y][x] == null) {
+                    isFull = false;
+                    break;
+                }
+            }
+            if (isFull) {
+                for (int row = y; row > 0; row--) {
+                    grid[row] = grid[row - 1].clone();  
+                }
+                grid[0] = new Color[WIDTH];
+            }
+        }
+    }
+
+    private void handleKeyPress(KeyEvent event) {
+        switch (event.getCode()) {
+            case SPACE:
+                currentTetromino.rotate();
+                break;
+            case A:
+                currentTetromino.moveLeft();
+                break;
+            case D:
+                currentTetromino.moveRight();
+                break;
+            case S:
+                currentTetromino.moveDown();
+                break;
+            case M: 
+                menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
+                break;                        
+            default:
+                System.out.println("Falsche Taste");
+        }
+    }
+  
+    public Tetromino getCurrentTetromino() {
+      return currentTetromino;
+    }
+  
+    public Color[][] getGrid() {
+      return grid;
+    }
+
+    public Scene getGameScene() {
+        return this.gameScene;
     }
 }
