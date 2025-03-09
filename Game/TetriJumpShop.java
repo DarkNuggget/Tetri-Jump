@@ -24,14 +24,16 @@ public class TetriJumpShop {
         skins.add(new Skin("Wache", "/Skins/Wache.png", false));
     }
 
-    public void showShopScreen(Stage primaryStage) {
-        ShopScreen shopScreen = new ShopScreen(this); // Übergibt TetriJumpShop
-        Scene shopScene = shopScreen.getScene(); // Hier wird die Szene des Shops geholt
-        primaryStage.setTitle("TetriGui - Shop");
-        primaryStage.setScene(shopScene);
-        primaryStage.setResizable(true);
-        primaryStage.show();
+    public void showShopScreen(Stage primaryStage, TetriGui tetriGui) {
+    // Now passing both TetriJumpShop and TetriGui
+    ShopScreen shopScreen = new ShopScreen(this, tetriGui); // Pass both instances
+    Scene shopScene = shopScreen.getScene(); // Get the scene for the shop
+    primaryStage.setTitle("TetriGui - Shop");
+    primaryStage.setScene(shopScene);
+    primaryStage.setResizable(true);
+    primaryStage.show();
     }
+
 
     public String getActiveSkin() {
         return activeSkin;
