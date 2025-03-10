@@ -22,6 +22,7 @@ public class TetriJumpShop {
         skins.add(new Skin("Dinosaurier", "/Skins/Dinosaurier.png", false));
         skins.add(new Skin("Gentleman", "/Skins/Gentleman.png", false));
         skins.add(new Skin("Wache", "/Skins/Wache.png", false));
+        skins.add(new Skin("Bernd das Brot", "/Skins/berndDasBrot.png", false));
     }
 
     public void showShopScreen(Stage primaryStage, TetriGui tetriGui) {
