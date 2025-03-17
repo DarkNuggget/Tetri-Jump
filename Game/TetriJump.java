@@ -11,8 +11,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
-
 import javafx.animation.TranslateTransition;
+import javafx.scene.effect.DropShadow; // Für Schatten-Effekte
+import javafx.scene.effect.Glow; // Für Glow-Effekte
 
 public class TetriJump {
 
@@ -22,24 +23,29 @@ public class TetriJump {
     private StartScreen startScreen;
     private static final int TILE_SIZE = 30;
 
-    public static int WIDTH = 20; // Breite des Spielfelds
-    public static int HEIGHT = 22; // Höhe des Spielfelds
+    public static int WIDTH = 20;
+    public static int HEIGHT = 22;
     private Color[][] grid = new Color[HEIGHT][WIDTH];
     private Timeline gameLoop;
     private Tetromino currentTetromino;
     private InGameMenu menu = new InGameMenu();
 
-    // Neue Spielfigur
+    // Spielfigur mit visuellen Verbesserungen
     private Rectangle player;
-    private double playerX = 100; // Startposition der Spielfigur, nicht in der Mitte
-    private double playerY = 100; // Startposition der Spielfigur, nicht in der Mitte
-    private final double playerSpeed = TILE_SIZE / 2; // Verlangsamung: Spielfigur bewegt sich langsamer
-    private TranslateTransition playerTransition; // Für flüssige Bewegung
+    private double playerX = 100;
+    private double playerY = 100;
+    private final double playerSpeed = TILE_SIZE / 3; // Etwas langsamer für bessere Kontrolle
+    private TranslateTransition playerTransition;
+    private double velocityY = 0; // Für Sprungmechanik
+    private final double gravity = 0.5; // Schwerkraft für realistische Sprünge
+    private boolean isJumping = false;
 
-    // Score-Anzeige
-    private int score = 0; // Startwert für den Punktestand
-    private Text scoreText; // Textobjekt, das den Punktestand anzeigt
-    private Timeline scoreIncrementer; // Timeline für den Score-Incrementer
+    // Score und Combo-System
+    private int score = 0;
+    private int comboMultiplier = 1; // Für zusätzliche Belohnung bei Ketten
+    private Text scoreText;
+    private Text comboText; // Zeigt den Combo-Multiplikator
+    private Timeline scoreIncrementer;
 
     public TetriJump(Stage primaryStage, TetriGui app) {
         this.primaryStage = primaryStage;
@@ -49,35 +55,44 @@ public class TetriJump {
 
     public void createGame(Stage primaryStage, int width, int height) {
         Pane root = new Pane();
-        root.setStyle("-fx-background-color: black;"); // Hintergrundfarbe
+        root.setStyle("-fx-background-color: #1a1a1a;"); // Dunkler, professioneller Hintergrund
 
         // Canvas für das Spielfeld
         Canvas canvas = new Canvas(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
         root.getChildren().add(canvas);
 
-        // Spielfigur hinzufügen
+        // Spielfigur mit Effekten
         player = new Rectangle(playerX, playerY, TILE_SIZE, TILE_SIZE);
-        player.setFill(Color.RED); // Spielfigur in Rot
+        player.setFill(Color.CYAN); // Auffälligere Farbe
+        player.setEffect(new DropShadow(10, Color.WHITE)); // Schatten für Tiefe
         root.getChildren().add(player);
 
         // Transition für flüssige Bewegung
-        playerTransition = new TranslateTransition();
-        playerTransition.setNode(player);
-        playerTransition.setInterpolator(javafx.animation.Interpolator.LINEAR); // Für gleichmäßige Bewegung
+        playerTransition = new TranslateTransition(Duration.millis(100), player);
+        playerTransition.setInterpolator(javafx.animation.Interpolator.EASE_BOTH); // Sanftere Bewegung
 
-        // Score-Text hinzufügen
+        // Score-Text
         scoreText = new Text("Score: 0");
-        scoreText.setFill(Color.WHITE); // Textfarbe für den Score
-        scoreText.setFont(Font.font(20)); // Schriftgröße
-        scoreText.setX(WIDTH * TILE_SIZE - 100); // Position für den Score (oben rechts)
-        scoreText.setY(30); // Position für den Score
+        scoreText.setFill(Color.YELLOW); // Auffällige Farbe
+        scoreText.setFont(Font.font("Arial", 24)); // Größere, professionellere Schrift
+        scoreText.setX(WIDTH * TILE_SIZE - 120);
+        scoreText.setY(30);
+        scoreText.setEffect(new Glow(0.8)); // Glow für Professionalität
         root.getChildren().add(scoreText);
+
+        // Combo-Text
+        comboText = new Text("Combo: x1");
+        comboText.setFill(Color.ORANGE);
+        comboText.setFont(Font.font("Arial", 20));
+        comboText.setX(WIDTH * TILE_SIZE - 120);
+        comboText.setY(60);
+        root.getChildren().add(comboText);
 
         gameScene = new Scene(root, width * TILE_SIZE, height * TILE_SIZE);
         gameScene.setOnKeyPressed(event -> handleKeyPress(event));
 
-        // Score-Inkrementer (jeden Punkt pro Sekunde hinzufügen)
-        scoreIncrementer = new Timeline(new KeyFrame(Duration.seconds(1), e -> incrementScore()));
+        // Score-Inkrementer mit Variation
+        scoreIncrementer = new Timeline(new KeyFrame(Duration.seconds(0.5), e -> incrementScore()));
         scoreIncrementer.setCycleCount(Timeline.INDEFINITE);
         scoreIncrementer.play();
 
@@ -87,8 +102,9 @@ public class TetriJump {
     private void startGame(GraphicsContext gc) {
         currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
 
-        gameLoop = new Timeline(new KeyFrame(Duration.millis(400), e -> {
+        gameLoop = new Timeline(new KeyFrame(Duration.millis(300), e -> { // Schnelleres Tempo
             updateGame();
+            updatePlayer(); // Neue Methode für Spieler-Physik
             render(gc);
         }));
         gameLoop.setCycleCount(Timeline.INDEFINITE);
@@ -100,25 +116,49 @@ public class TetriJump {
             currentTetromino.moveDown();
         } else {
             fixTetromino(currentTetromino);
-            clearFullRows();
+            int clearedRows = clearFullRows();
+            if (clearedRows > 0) {
+                comboMultiplier = Math.min(comboMultiplier + clearedRows, 5); // Max x5 Combo
+                // Hier könnte ein Soundeffekt hinzugefügt werden, z. B.:
+                // playSound("row_clear.wav");
+            } else {
+                comboMultiplier = 1; // Combo zurücksetzen
+            }
+            updateComboDisplay();
             currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
         }
+    }
+
+    // Neue Methode für Spieler-Physik (Sprung und Schwerkraft)
+    private void updatePlayer() {
+        if (isJumping) {
+            velocityY += gravity;
+            playerY += velocityY;
+            if (playerY >= HEIGHT * TILE_SIZE - TILE_SIZE) {
+                playerY = HEIGHT * TILE_SIZE - TILE_SIZE;
+                isJumping = false;
+                velocityY = 0;
+            }
+        }
+        movePlayerSmoothly();
     }
 
     private void render(GraphicsContext gc) {
         gc.clearRect(0, 0, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
 
-        // Render the fixed grid blocks (with their colors)
+        // Render Grid mit leichter Transparenz für Stil
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 if (grid[y][x] != null) {
-                    gc.setFill(grid[y][x]);
+                    gc.setFill(grid[y][x].deriveColor(0, 1, 1, 0.9)); // Leichte Transparenz
                     gc.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    gc.setStroke(Color.GRAY); // Gitterlinien für besseren Look
+                    gc.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
                 }
             }
         }
 
-        // Render the current tetromino
+        // Render Tetromino
         currentTetromino.render(gc, TILE_SIZE);
     }
 
@@ -130,7 +170,8 @@ public class TetriJump {
         tetromino.fixToGrid(grid);
     }
 
-    private void clearFullRows() {
+    private int clearFullRows() {
+        int clearedRows = 0;
         for (int y = 0; y < HEIGHT; y++) {
             boolean isFull = true;
             for (int x = 0; x < WIDTH; x++) {
@@ -140,9 +181,9 @@ public class TetriJump {
                 }
             }
             if (isFull) {
-                // Wenn eine Reihe voll ist, erhöhen wir den Punktestand
-                score += 100; // Beispielweise 100 Punkte pro voll gelöschter Reihe
-                updateScoreDisplay(); // Punktestand aktualisieren
+                clearedRows++;
+                score += 100 * comboMultiplier; // Mehr Punkte mit Combo
+                updateScoreDisplay();
 
                 for (int row = y; row > 0; row--) {
                     grid[row] = grid[row - 1].clone();
@@ -150,6 +191,7 @@ public class TetriJump {
                 grid[0] = new Color[WIDTH];
             }
         }
+        return clearedRows;
     }
 
     private void handleKeyPress(KeyEvent event) {
@@ -165,14 +207,19 @@ public class TetriJump {
                 break;
             case S:
                 currentTetromino.moveDown();
+                score += 2; // Kleine Belohnung für manuelles Absenken
+                updateScoreDisplay();
                 break;
             case M:
                 menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
                 break;
-            // Steuerung der Spielfigur mit den Pfeiltasten
             case UP:
-                playerY -= playerSpeed;
-                movePlayerSmoothly();
+                if (!isJumping) {
+                    isJumping = true;
+                    velocityY = -10; // Sprungkraft
+                    // Hier könnte ein Soundeffekt hinzugefügt werden:
+                    // playSound("jump.wav");
+                }
                 break;
             case DOWN:
                 playerY += playerSpeed;
@@ -191,36 +238,46 @@ public class TetriJump {
         }
     }
 
-    // Methode für flüssige Bewegung der Spielfigur mit Teleportation an die gegenüberliegende Seite
     private void movePlayerSmoothly() {
-        // Horizontaler Wrap-Around: Wenn der Spieler den rechten Rand erreicht, erscheint er links
+        // Wrap-Around mit visuellem Feedback
         if (playerX < 0) {
-            playerX = WIDTH * TILE_SIZE - TILE_SIZE; // Gehe auf die rechte Seite
+            playerX = WIDTH * TILE_SIZE - TILE_SIZE;
+            player.setEffect(new Glow(1.0)); // Glow beim Teleport
+            playerTransition.setOnFinished(e -> player.setEffect(new DropShadow(10, Color.WHITE)));
+            playerTransition.play();
         } else if (playerX > WIDTH * TILE_SIZE - TILE_SIZE) {
-            playerX = 0; // Gehe auf die linke Seite
+            playerX = 0;
+            player.setEffect(new Glow(1.0));
+            playerTransition.setOnFinished(e -> player.setEffect(new DropShadow(10, Color.WHITE)));
+            playerTransition.play();
         }
 
-        // Vertikaler Wrap-Around: Wenn der Spieler den oberen Rand erreicht, erscheint er unten
         if (playerY < 0) {
-            playerY = HEIGHT * TILE_SIZE - TILE_SIZE; // Gehe an den unteren Rand
+            playerY = HEIGHT * TILE_SIZE - TILE_SIZE;
         } else if (playerY > HEIGHT * TILE_SIZE - TILE_SIZE) {
-            playerY = 0; // Gehe an den oberen Rand
+            playerY = HEIGHT * TILE_SIZE - TILE_SIZE;
         }
 
-        // Setze die Position des Spielers sofort, ohne Animation
         player.setX(playerX);
         player.setY(playerY);
     }
 
-    // Methode, um den Punktestand anzuzeigen und zu aktualisieren
     private void updateScoreDisplay() {
-        scoreText.setText("Score: " + score); // Aktualisiert den Text im Score-Anzeige
+        scoreText.setText("Score: " + score);
     }
 
-    // Methode, die jede Sekunde den Score um 1 erhöht
+    private void updateComboDisplay() {
+        comboText.setText("Combo: x" + comboMultiplier);
+        if (comboMultiplier > 1) {
+            comboText.setEffect(new Glow(0.8)); // Glow bei Combo
+        } else {
+            comboText.setEffect(null);
+        }
+    }
+
     private void incrementScore() {
-        score += 1;
-        updateScoreDisplay(); // Aktualisiert den Punktestand im UI
+        score += comboMultiplier; // Basis-Score skaliert mit Combo
+        updateScoreDisplay();
     }
 
     public Tetromino getCurrentTetromino() {

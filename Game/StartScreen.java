@@ -97,7 +97,6 @@ public class StartScreen {
     }
 
     private void showModeSelection() {
-        // Panel für die Spielmodi-Auswahl im bestehenden Menü-Fenster
         VBox modeRoot = new VBox(20);
         modeRoot.setAlignment(Pos.CENTER);
         modeRoot.setStyle("-fx-background-color: white; -fx-padding: 10px;");
@@ -208,7 +207,6 @@ public class StartScreen {
         transition.play();
     }
 
-    // Hilfsmethode, um die Buttons wieder hinzuzufügen
     private void addMainMenuButtons() {
         // Füge die Buttons nur hinzu, wenn sie noch nicht vorhanden sind
         if (!buttonsAdded) {
