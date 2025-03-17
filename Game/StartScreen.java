@@ -1,216 +1,152 @@
 import javafx.animation.TranslateTransition;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.geometry.Pos;
 import javafx.util.Duration;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.Node;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class StartScreen {
     private TetriGui app;
     private Scene scene;
-    private VBox mainMenuRoot; // Der Container für das Hauptmenü
-    private boolean buttonsAdded = false; // Flag, um zu prüfen, ob die Buttons schon hinzugefügt wurden
-    MusikPlayer musikPlayer;
-    
-  
+    private VBox mainMenuRoot;
+    private boolean buttonsAdded = false;
+    private VBox activePanel = null;
+
     public StartScreen(TetriGui app) {
         this.app = app;
         createUI();
     }
 
-    public void createUI() {
-        // Verhindere mehrfaches Hinzufügen der Buttons
-        if (buttonsAdded) {
-            return;
-        }
+    private void createUI() {
+        if (buttonsAdded) return;
 
-        InGameMenu.musikPlayer.startMenuMusik(); // Menü-Musik starten
+        InGameMenu.musikPlayer.startMenuMusik();
         InGameMenu.musikPlayer.MenuOffen = true;
-        mainMenuRoot = new VBox(20);
+        
+        mainMenuRoot = new VBox(15);
         mainMenuRoot.setAlignment(Pos.CENTER);
-
-        // Hintergrundbild laden
+        mainMenuRoot.setPrefSize(600, 700);
+        
         File backgroundFile = new File("Hintergrund/MainMenuHintergrund.jpg");
         String bgUri = backgroundFile.toURI().toString();
-        BackgroundImage bgImage = new BackgroundImage(new Image(bgUri),
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.CENTER,
-                BackgroundSize.DEFAULT);
-        mainMenuRoot.setBackground(new Background(bgImage));
-
-        // Titel-Text für das Spiel
+        mainMenuRoot.setBackground(new Background(new BackgroundImage(
+                new Image(bgUri, 600, 700, false, true),
+                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
+        
         Text title = new Text("TetriJump");
-        title.setFont(new Font(50));
+        title.setFont(Font.font("Arial", 50));
         title.setFill(Color.WHITE);
         title.setStyle("-fx-font-weight: bold;");
-
-        // Start-Button
-        Button startButton = new Button("Start Game");
-        startButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-        startButton.setOnAction(event -> showModeSelection());
-
-        // Optionen-Button
-        Button optionsButton = new Button("Options");
-        optionsButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-        optionsButton.setOnAction(event -> showVolumeSettings());
-    
-        Button shopButton = new Button("Shop");
-        shopButton.setStyle("-fx-font-size: 18px;");
-        shopButton.setOnAction(e -> {;
-          InGameMenu.musikPlayer.stoppeAktuelleMusik();
-          InGameMenu.musikPlayer.startShopMusik();
-          app.openShop();
-        });  // Shop öffnen
-    
-        // Exit-Button
-        Button exitButton = new Button("Exit");
-        exitButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-        exitButton.setOnAction(event -> System.exit(0));
-    
-
-        // Buttons zur VBox hinzufügen
-        mainMenuRoot.getChildren().addAll(title, startButton, optionsButton,shopButton, exitButton);
-
-        // Szene erstellen
-        scene = new Scene(mainMenuRoot, 596, 672);
-
-        // Setze das Flag, dass die Buttons jetzt hinzugefügt wurden
+        
+        VBox buttonContainer = new VBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+        buttonContainer.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6); -fx-padding: 20px; -fx-background-radius: 10px;");
+        
+        Button startButton = createStyledButton("Start Game", event -> showModeSelection());
+        Button optionsButton = createStyledButton("Options", event -> showVolumeSettings());
+        Button shopButton = createStyledButton("Shop", e -> {
+            InGameMenu.musikPlayer.stoppeAktuelleMusik();
+            InGameMenu.musikPlayer.startShopMusik();
+            app.openShop();
+        });
+        Button exitButton = createStyledButton("Exit", event -> System.exit(0));
+        
+        buttonContainer.getChildren().addAll(startButton, optionsButton, shopButton, exitButton);
+        mainMenuRoot.getChildren().addAll(title, buttonContainer);
+        
+        scene = new Scene(mainMenuRoot, 600, 700);
         buttonsAdded = true;
     }
 
-    private void showModeSelection() {
-        VBox modeRoot = new VBox(20);
-        modeRoot.setAlignment(Pos.CENTER);
-        modeRoot.setStyle("-fx-background-color: white; -fx-padding: 10px;");
-
-        Text modeTitle = new Text("Select a Game Mode");
-        modeTitle.setFont(new Font(30));
-        modeTitle.setFill(Color.BLACK);
-
-        // RadioButtons für die Modi
-        ToggleGroup modeGroup = new ToggleGroup();
-
-        RadioButton classicTetris = new RadioButton("Classic Tetris");
-        classicTetris.setToggleGroup(modeGroup);
-        classicTetris.setSelected(true);
-
-        RadioButton jumpTetris = new RadioButton("Jump Tetris");
-        jumpTetris.setToggleGroup(modeGroup);
-
-        // Start-Button für den ausgewählten Modus
-        Button startModeButton = new Button("Start");
-        startModeButton.setStyle("-fx-font-size: 18px; -fx-padding: 10px 20px;");
-        startModeButton.setOnAction(event -> {
-            RadioButton selectedMode = (RadioButton) modeGroup.getSelectedToggle();
-            if (selectedMode != null) {
-                InGameMenu.musikPlayer.MenuOffen = false;
-                String mode = selectedMode.getText();
-                System.out.println("Starting game in mode: " + mode);
-                InGameMenu.musikPlayer.startGameMusik();
-                app.startGameWithMode(mode); // Spiel im ausgewählten Modus starten
-            }
-        });
+    private Button createStyledButton(String text, javafx.event.EventHandler<javafx.event.ActionEvent> action) {
+        Button button = new Button(text);
+        button.setStyle("-fx-font-size: 20px; -fx-text-fill: white; -fx-background-color: #222222; -fx-border-color: #00FFFF; -fx-border-width: 2px; -fx-border-radius: 5px; -fx-padding: 10px 20px; -fx-font-family: 'Press Start 2P';");
+        button.setMinWidth(200);
+        button.setOnAction(action);
+        
+        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 20px; -fx-text-fill: black; -fx-background-color: #00FFFF; -fx-border-color: white; -fx-border-width: 2px; -fx-border-radius: 5px; -fx-padding: 10px 20px; -fx-font-family: 'Press Start 2P';"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 20px; -fx-text-fill: white; -fx-background-color: #222222; -fx-border-color: #00FFFF; -fx-border-width: 2px; -fx-border-radius: 5px; -fx-padding: 10px 20px; -fx-font-family: 'Press Start 2P';"));
     
-        Button closeButton = new Button("Close");
-        closeButton.setOnAction(event -> {
-            // Panel ausblenden
-            VBox currentPanel = (VBox) closeButton.getParent();
-            TranslateTransition transition = new TranslateTransition(Duration.seconds(0.5), currentPanel);
-            transition.setFromX(0);
-            transition.setToX(600);
-            transition.play();
-
-            // Wenn die Animation abgeschlossen ist, zurück zum Hauptmenü
-            transition.setOnFinished(e -> {
-                // Zeige die ursprünglichen Buttons wieder an, sobald das Panel geschlossen wurde
-                mainMenuRoot.getChildren().remove(currentPanel);
-                addMainMenuButtons(); // Füge die ursprünglichen Buttons wieder hinzu
-            });
-        });
-    
-        modeRoot.getChildren().addAll(modeTitle, classicTetris, jumpTetris, startModeButton, closeButton);
-
-        // Das Panel in das Hauptmenü einfügen
-        mainMenuRoot.getChildren().add(modeRoot);
-
-        // Panel-Einblendung animieren
-        TranslateTransition transition = new TranslateTransition(Duration.seconds(0.5), modeRoot);
-        transition.setFromX(600);
-        transition.setToX(0);
-        transition.play();
+        return button;
     }
 
-    public void showVolumeSettings() {
-        // Panel für Lautstärke-Einstellungen im bestehenden Menü-Fenster
-        VBox volumeRoot = new VBox(20);
-        volumeRoot.setAlignment(Pos.CENTER);
-        volumeRoot.setStyle("-fx-background-color: white; -fx-padding: 10px;");
+    private void showModeSelection() {
+        openPanel("Select a Game Mode", new String[]{"Classic Tetris", "Jump Tetris"}, mode -> {
+            InGameMenu.musikPlayer.MenuOffen = false;
+            InGameMenu.musikPlayer.startGameMusik();
+            app.startGameWithMode(mode);
+        });
+    }
 
-        // Lautstärke Label und Slider
-        Label volumeLabel = new Label("Adjust Volume:");
+    private void showVolumeSettings() {
+        VBox panel = createPanel("Adjust Volume");
         Slider volumeSlider = new Slider(0, 100, LautstaerkeEinstellungen.loadVolumeSetting() * 100);
-        volumeSlider.setBlockIncrement(1);
         volumeSlider.setShowTickLabels(true);
-        volumeSlider.setShowTickMarks(true);
-
-        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            double volume = newValue.doubleValue() / 100;
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double volume = newVal.doubleValue() / 100;
             LautstaerkeEinstellungen.saveaVolumeSetting(volume);
             InGameMenu.musikPlayer.setAktuelleLautstaerke(volume);
         });
+        panel.getChildren().add(volumeSlider);
+        openPanel(panel);
+    }
 
-        // Button zum Schließen des Panels
-        Button closeButton = new Button("Close");
-        closeButton.setOnAction(event -> {
-            // Panel ausblenden
-            VBox currentPanel = (VBox) closeButton.getParent();
-            TranslateTransition transition = new TranslateTransition(Duration.seconds(0.5), currentPanel);
-            transition.setFromX(0);
-            transition.setToX(600);
-            transition.play();
-
-            // Wenn die Animation abgeschlossen ist, zurück zum Hauptmenü
-            transition.setOnFinished(e -> {
-                // Zeige die ursprünglichen Buttons wieder an, sobald das Panel geschlossen wurde
-                mainMenuRoot.getChildren().remove(currentPanel);
-                addMainMenuButtons(); // Füge die ursprünglichen Buttons wieder hinzu
-            });
+    private void openPanel(String titleText, String[] options, java.util.function.Consumer<String> onSelect) {
+        VBox panel = createPanel(titleText);
+        ToggleGroup group = new ToggleGroup();
+        for (String option : options) {
+            RadioButton btn = new RadioButton(option);
+            btn.setToggleGroup(group);
+            panel.getChildren().add(btn);
+        }
+        Button confirmButton = createStyledButton("Confirm", event -> {
+            RadioButton selected = (RadioButton) group.getSelectedToggle();
+            if (selected != null) onSelect.accept(selected.getText());
         });
+        panel.getChildren().add(confirmButton);
+        openPanel(panel);
+    }
 
-        volumeRoot.getChildren().addAll(volumeLabel, volumeSlider, closeButton);
+    private VBox createPanel(String titleText) {
+        VBox panel = new VBox(15);
+        panel.setAlignment(Pos.CENTER);
+        panel.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7); -fx-padding: 20px; -fx-background-radius: 10px;");
+        
+        Text title = new Text(titleText);
+        title.setFont(Font.font("Arial", 25));
+        title.setFill(Color.WHITE);
+        panel.getChildren().add(title);
+        
+        Button closeButton = createStyledButton("Close", event -> closeActivePanel());
+        panel.getChildren().add(closeButton);
+        
+        return panel;
+    }
 
-        // Das Panel in das Hauptmenü einfügen
-        mainMenuRoot.getChildren().add(volumeRoot);
-
-        // Panel-Einblendung animieren
-        TranslateTransition transition = new TranslateTransition(Duration.seconds(0.5), volumeRoot);
+    private void openPanel(VBox panel) {
+        closeActivePanel();
+        activePanel = panel;
+        mainMenuRoot.getChildren().add(panel);
+        TranslateTransition transition = new TranslateTransition(Duration.seconds(0.5), panel);
         transition.setFromX(600);
         transition.setToX(0);
         transition.play();
     }
 
-    private void addMainMenuButtons() {
-        // Füge die Buttons nur hinzu, wenn sie noch nicht vorhanden sind
-        if (!buttonsAdded) {
-            createUI(); // Stelle die ursprünglichen Buttons wieder her
+    private void closeActivePanel() {
+        if (activePanel != null) {
+            TranslateTransition transition = new TranslateTransition(Duration.seconds(0.5), activePanel);
+            transition.setFromX(0);
+            transition.setToX(600);
+            transition.setOnFinished(event -> mainMenuRoot.getChildren().remove(activePanel));
+            transition.play();
+            activePanel = null;
         }
     }
 
