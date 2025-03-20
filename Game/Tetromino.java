@@ -61,6 +61,7 @@ public class Tetromino {
     shape = rotatedShape;
   }
 
+  // Überprüft, ob das Tetromino an der neuen Position (mit dx, dy Verschiebung) bewegt werden kann
   public boolean canMove(Color[][] grid, int dx, int dy) {
     for (int row = 0; row < shape.length; row++) {
       for (int col = 0; col < shape[row].length; col++) {
@@ -68,19 +69,22 @@ public class Tetromino {
           int newX = x + col + dx;
           int newY = y + row + dy;
           
+          // Prüfen, ob das neue Koordinaten innerhalb der Grenzen des Spielfeldes liegen
           if (newX < 0 || newX >= grid[0].length || newY >= grid.length) {
-            return false;
+            return false;  // Außerhalb des Spielfeldes
           }
           
+          // Überprüfen, ob die neue Position mit einem bestehenden Block kollidiert
           if (newY >= 0 && grid[newY][newX] != null) {
-            return false;
+            return false;  // Kollisionsblock gefunden
           }
         }
       }
     }
-    return true;
+    return true;  // Keine Kollision, Bewegung ist erlaubt
   }
-  
+
+  // Überprüft, ob das Tetromino gedreht werden kann (ohne Kollision mit bestehenden Blöcken)
   public boolean canRotate(Color[][] grid) {
     int rows = shape.length;
     int cols = shape[0].length;
@@ -116,6 +120,7 @@ public class Tetromino {
     return true;
   }
 
+  // Fixiert das Tetromino auf dem Spielfeld
   public void fixToGrid(Color[][] grid) {
     for (int row = 0; row < shape.length; row++) {
       for (int col = 0; col < shape[row].length; col++) {
@@ -130,6 +135,7 @@ public class Tetromino {
     }
   }
 
+  // Zeichnet das Tetromino auf dem Canvas
   public void render(GraphicsContext gc, int tileSize) {
     // Zeichnen des Tetrominos
     gc.setFill(color);
@@ -148,7 +154,7 @@ public class Tetromino {
     
     // Zeichnen der Hitbox (Umrandung)
     gc.setStroke(Color.BLACK);  // Farbe für die Hitbox (z.B. schwarz)
-    gc.setLineWidth(2);         // Dicke der Linie
+    gc.setLineWidth(0);         // Dicke der Linie
     
     // Umrandung des Tetrominos
     for (int row = 0; row < shape.length; row++) {
@@ -174,7 +180,7 @@ public class Tetromino {
     return new int[] { left, top, right, bottom };
   }
 
-    // Zusätzliche Methoden
+  // Zusätzliche Methoden
   public int getWidth() {
     return shape[0].length;
   }

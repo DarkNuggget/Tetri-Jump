@@ -130,65 +130,65 @@ public class TetriJump {
   // Neue Methode für Spieler-Physik (Sprung und Schwerkraft)
   private void updatePlayer() {
     if (isJumping) {
-        velocityY += gravity;
-        playerY += velocityY;
-
-        // Überprüfen, ob der Spieler den Boden erreicht oder auf einem Block landet
-        if (playerY >= HEIGHT * TILE_SIZE - TILE_SIZE || isCollidingWithBottom()) {
-            playerY = HEIGHT * TILE_SIZE - TILE_SIZE;  // Spieler bleibt auf dem Boden stehen
-            isJumping = false;
-            velocityY = 0;
-        }
+      velocityY += gravity;
+      playerY += velocityY;
+      
+      // Überprüfen, ob der Spieler den Boden erreicht oder auf einem Block landet
+      if (playerY >= HEIGHT * TILE_SIZE - TILE_SIZE || isCollidingWithBottom()) {
+        playerY = HEIGHT * TILE_SIZE - TILE_SIZE;  // Spieler bleibt auf dem Boden stehen
+        isJumping = false;
+        velocityY = 0;
+      }
     }
-
+    
     // Kollision mit Blocken oben
     if (isCollidingWithTop()) {
-        // Falls der Spieler oben mit einem Block kollidiert, verhindern wir das weitere Nach-oben-Bewegen
-        velocityY = 0;  // Verhindert das Aufprallen auf den Block
+      // Falls der Spieler oben mit einem Block kollidiert, verhindern wir das weitere Nach-oben-Bewegen
+      velocityY = 0;  // Verhindert das Aufprallen auf den Block
     }
-
+    
     movePlayerSmoothly();
-}
-
- 
+  }
+  
+  
   private boolean isCollidingWithLeft() {
     int playerGridX = (int) (playerX / TILE_SIZE);
     int playerGridY = (int) (playerY / TILE_SIZE);
     return playerGridX > 0 && grid[playerGridY][playerGridX - 1] != null;
-}
-
-private boolean isCollidingWithRight() {
+  }
+  
+  private boolean isCollidingWithRight() {
     int playerGridX = (int) ((playerX + TILE_SIZE) / TILE_SIZE);
     int playerGridY = (int) (playerY / TILE_SIZE);
     return playerGridX < WIDTH - 1 && grid[playerGridY][playerGridX + 1] != null;
-}
+  }
   private boolean isCollidingWithTop() {
     // Berechne die Position des Spielers im Gitter (für die obere Kante)
     int playerGridX = (int) (playerX / TILE_SIZE);
     int playerGridY = (int) (playerY / TILE_SIZE);  // Direkt über dem Spieler (obere Kante)
-
+    
     // Überprüfen, ob der Spieler oben mit einem Block kollidiert
     if (playerGridY > 0) {
-        if (grid[playerGridY - 1][playerGridX] != null) {
-            return true;
-        }
+      if (grid[playerGridY - 1][playerGridX] != null) {
+        return true;
+      }
     }
     return false;
-}
+  }
   private boolean isCollidingWithBottom() {
     // Berechne die Position des Spielers im Gitter (für die untere Kante)
     int playerGridX = (int) (playerX / TILE_SIZE);
     int playerGridY = (int) ((playerY + TILE_SIZE) / TILE_SIZE);  // Direkt unter dem Spieler (untere Kante)
-
+    
     // Überprüfen, ob der Spieler unten mit einem Block kollidiert
     if (playerGridY < HEIGHT) {
-        if (grid[playerGridY][playerGridX] != null) {
-            return true;
-        }
+      if (grid[playerGridY][playerGridX] != null) {
+        return true;
+      }
     }
     return false;
-}
-
+  }
+  
   
   private void render(GraphicsContext gc) {
     gc.clearRect(0, 0, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
@@ -241,23 +241,23 @@ private boolean isCollidingWithRight() {
     return clearedRows;
   }
 
-private void handleKeyPress(KeyEvent event) {
+  private void handleKeyPress(KeyEvent event) {
     switch (event.getCode()) {
-       case SPACE:
-                 currentTetromino.rotate();
-                 break;
-             case A:
-                 currentTetromino.moveLeft();
-                 break;
-             case D:
-                 currentTetromino.moveRight();
-                 break;
-             case S:
-                 currentTetromino.moveDown();
-                 break;
-             case M: 
-                 menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
-                 break;  
+        case SPACE:
+            currentTetromino.rotate();
+            break;
+        case A:
+            currentTetromino.moveLeft();
+            break;
+        case D:
+            currentTetromino.moveRight();
+            break;
+        case S:
+            currentTetromino.moveDown();
+            break;
+        case M: 
+            menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
+            break;  
         case UP:
             if (!isJumping) {
                 isJumping = true;
@@ -283,26 +283,27 @@ private void handleKeyPress(KeyEvent event) {
 
 
 
+
   private void movePlayerSmoothly() {
     if (playerX < 0) {
       playerX = WIDTH * TILE_SIZE - TILE_SIZE;
     } else if (playerX > WIDTH * TILE_SIZE - TILE_SIZE) {
       playerX = 0;
     }
-
+    
     if (playerY < 0) {
       playerY = HEIGHT * TILE_SIZE - TILE_SIZE;
     } else if (playerY > HEIGHT * TILE_SIZE - TILE_SIZE) {
       playerY = HEIGHT * TILE_SIZE - TILE_SIZE;
     }
-
+    
     player.setX(playerX);
     player.setY(playerY);
   }
   
   public Scene getGameScene() {
     return gameScene;
-}
+  }
 
 
 
@@ -312,13 +313,13 @@ private void handleKeyPress(KeyEvent event) {
     
     // Kollision überprüfen, wenn der Spieler auf einem Block landet
     if (playerGridY < HEIGHT) {
-        // Wenn unter dem Spieler ein Block existiert
-        if (grid[playerGridY][playerGridX] != null) {
-            return true;
-        }
+      // Wenn unter dem Spieler ein Block existiert
+      if (grid[playerGridY][playerGridX] != null) {
+        return true;
+      }
     }
     return false;
-}
+  }
 
   private void updateScoreDisplay() {
     scoreText.setText("Score: " + score);
