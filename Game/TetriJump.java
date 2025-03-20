@@ -243,28 +243,21 @@ private boolean isCollidingWithRight() {
 
 private void handleKeyPress(KeyEvent event) {
     switch (event.getCode()) {
-        case SPACE:
-            currentTetromino.rotate();
-            break;
-        case A:
-            if (!isCollidingWithLeft()) {
-                playerX -= playerSpeed;  // Links bewegen
-            }
-            movePlayerSmoothly();
-            break;
-        case D:
-            if (!isCollidingWithRight()) {
-                playerX += playerSpeed;  // Rechts bewegen
-            }
-            movePlayerSmoothly();
-            break;
-        case S:
-            playerY += playerSpeed;  // Nach unten bewegen (kann angepasst werden, je nachdem wie du das willst)
-            movePlayerSmoothly();
-            break;
-        case M:
-            menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
-            break;
+       case SPACE:
+                 currentTetromino.rotate();
+                 break;
+             case A:
+                 currentTetromino.moveLeft();
+                 break;
+             case D:
+                 currentTetromino.moveRight();
+                 break;
+             case S:
+                 currentTetromino.moveDown();
+                 break;
+             case M: 
+                 menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
+                 break;  
         case UP:
             if (!isJumping) {
                 isJumping = true;
