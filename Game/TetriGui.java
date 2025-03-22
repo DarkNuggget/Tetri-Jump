@@ -3,11 +3,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class TetriGui extends Application {
-    private static Stage primaryStage; // Das Hauptfenster
+    private static Stage primaryStage;
     private TetriJump tetriJump;
     private TetriAutoGame tetriAutoGame;
     private StartScreen startScreen;
-    private TetriJumpShop tetriJumpShop; // Das Shop-Objekt
+    private TetriJumpShop tetriJumpShop;
 
     @Override
     public void start(Stage primaryStage) {
@@ -51,7 +51,7 @@ public class TetriGui extends Application {
     ShopScreen shopScreen = new ShopScreen(tetriJumpShop, this);  // Pass 'this' to ShopScreen constructor
     Scene shopScene = shopScreen.getScene();
     primaryStage.setScene(shopScene);
-    primaryStage.show();
+    primaryStage.show();  
 }
 
 
@@ -83,6 +83,6 @@ public class TetriGui extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);  // Starte die Anwendung
+        launch(args);
     }
 }
