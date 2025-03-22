@@ -1,6 +1,5 @@
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -12,33 +11,27 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.scene.control.Button;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.geometry.Pos;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
-
+import java.util.Random;
 
 public class TetriAutoGame {
 
     private Scene gameScene;
     private Stage primaryStage;
     private TetriGui app;
-    private StartScreen startScreen;
     private static final int TILE_SIZE = 30;
-
     public static int WIDTH = 20;
     public static int HEIGHT = 22;
     private Color[][] grid = new Color[HEIGHT][WIDTH];
     private Timeline gameLoop;
     private Tetromino currentTetromino;
     private InGameMenu menu = new InGameMenu();
+    private Random random = new Random();
   
     public TetriAutoGame(Stage primaryStage, TetriGui app) {
         this.primaryStage = primaryStage;
         this.app = app;
-        createGame(primaryStage, 20, 22);
+        createGame(primaryStage, WIDTH, HEIGHT);
     }
 
     public void createGame(Stage primaryStage, int width, int height) {
@@ -51,15 +44,12 @@ public class TetriAutoGame {
     
         gameScene = new Scene(root, width * TILE_SIZE, height * TILE_SIZE);
         gameScene.setOnKeyPressed(event -> handleKeyPress(event));
-                       
-        AIController aiController = new AIController(this);
-        aiController.startAI();
-        
+    
         startGame(gc);  
     }
 
     private void startGame(GraphicsContext gc) {
-        currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
+        spawnRandomTetromino();
 
         gameLoop = new Timeline(new KeyFrame(Duration.millis(400), e -> {
             updateGame();
@@ -67,7 +57,11 @@ public class TetriAutoGame {
         }));
         gameLoop.setCycleCount(Timeline.INDEFINITE);
         gameLoop.play();
-
+    }
+       
+    private void spawnRandomTetromino() {
+        int randomX = random.nextInt(WIDTH - 4); // Zufällige X-Position
+        currentTetromino = Tetromino.createRandomTetromino(randomX, 0);
     }
 
     private void updateGame() {
@@ -76,14 +70,13 @@ public class TetriAutoGame {
         } else {
             fixTetromino(currentTetromino);
             clearFullRows();
-            currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
+            spawnRandomTetromino();
         }
     }
 
     private void render(GraphicsContext gc) {
         gc.clearRect(0, 0, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
 
-        // Render the fixed grid blocks (with their colors)
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 if (grid[y][x] != null) {
@@ -93,7 +86,6 @@ public class TetriAutoGame {
             }
         }
 
-        // Render the current tetromino
         currentTetromino.render(gc, TILE_SIZE);
     }
 
@@ -137,23 +129,21 @@ public class TetriAutoGame {
             case S:
                 currentTetromino.moveDown();
                 break;
-            case M: 
+            case M:
                 menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
-                break;                        
+                break;
             default:
                 System.out.println("Falsche Taste");
         }
     }
   
     public Tetromino getCurrentTetromino() {
-      return currentTetromino;
+        return currentTetromino;
     }
   
     public Color[][] getGrid() {
-      return grid;
+        return grid;
     }
-
-
 
     public Scene getGameScene() {
         return this.gameScene;
