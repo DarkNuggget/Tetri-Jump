@@ -48,14 +48,14 @@ public class StartScreen {
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6); -fx-padding: 20px; -fx-background-radius: 10px;");
         
-        Button startButton = createStyledButton("Start Game", event -> showModeSelection());
-        Button optionsButton = createStyledButton("Options", event -> showVolumeSettings());
+        Button startButton = createStyledButton("Spielen!", event -> showModeSelection());
+        Button optionsButton = createStyledButton("Optionen", event -> showVolumeSettings());
         Button shopButton = createStyledButton("Shop", e -> {
             InGameMenu.musikPlayer.stoppeAktuelleMusik();
             InGameMenu.musikPlayer.startShopMusik();
             app.openShop();
         });
-        Button exitButton = createStyledButton("Exit", event -> System.exit(0));
+        Button exitButton = createStyledButton("Schließen", event -> System.exit(0));
         
         buttonContainer.getChildren().addAll(startButton, optionsButton, shopButton, exitButton);
         mainMenuRoot.getChildren().addAll(title, buttonContainer);
@@ -77,7 +77,7 @@ public class StartScreen {
     }
 
     private void showModeSelection() {
-        openPanel("Select a Game Mode", new String[]{"Classic Tetris", "Jump Tetris"}, mode -> {
+        openPanel("Wähle einen Spielmodus:", new String[]{"Classic Tetris", "Jump Tetris"}, mode -> {
             InGameMenu.musikPlayer.MenuOffen = false;
             InGameMenu.musikPlayer.startGameMusik();
             app.startGameWithMode(mode);
@@ -85,7 +85,7 @@ public class StartScreen {
     }
 
     private void showVolumeSettings() {
-        VBox panel = createPanel("Adjust Volume");
+        VBox panel = createPanel("Lautstärke anpassen");
         Slider volumeSlider = new Slider(0, 100, LautstaerkeEinstellungen.loadVolumeSetting() * 100);
         volumeSlider.setShowTickLabels(true);
         volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -106,7 +106,7 @@ public class StartScreen {
             btn.setStyle("-fx-text-fill: white;");
             panel.getChildren().add(btn);
         }
-        Button confirmButton = createStyledButton("Confirm", event -> {
+        Button confirmButton = createStyledButton("Spielen!", event -> {
             RadioButton selected = (RadioButton) group.getSelectedToggle();
             if (selected != null) onSelect.accept(selected.getText());
         });
@@ -124,7 +124,7 @@ public class StartScreen {
         title.setFill(Color.WHITE);
         panel.getChildren().add(title);
         
-        Button closeButton = createStyledButton("Close", event -> closeActivePanel());
+        Button closeButton = createStyledButton("Schließen", event -> closeActivePanel());
         panel.getChildren().add(closeButton);
         
         return panel;
