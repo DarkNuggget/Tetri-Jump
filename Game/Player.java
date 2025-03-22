@@ -3,126 +3,109 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 
 public class Player {
-  private double playerX;
-  private double playerY;
-  private final double playerSpeed = 30;  // Geschwindigkeit des Spielers
-  private final int TILE_SIZE = 30;  // Beispiel für Tile-Größe
-  private final int WIDTH = 20;      // Breite des Spielfeldes (in Tiles)
-  private final int HEIGHT = 22;     // Höhe des Spielfeldes (in Tiles)
-  
-  private Color[][] grid; // Spielfeld-Grid
+    private double playerX;
+    private double playerY;
+    private Skin skin;
+    private final double playerSpeed = 30;
+    private final int TILE_SIZE = 30;
+    private final int WIDTH = 20;
+    private final int HEIGHT = 22;
+    private Color[][] grid;
 
-  // Konstruktor
-  public Player(Color[][] grid) {
-    this.grid = grid;
-    playerX = 100;
-    playerY = 100;
-  }
-
-  // Die Methode zur Handhabung der Tastenanschläge
-  public void handleKeyPress(KeyEvent event, Tetromino[] tetrominos) {
-    switch (event.getCode()) {
-      case UP:
-        jump();
-        break;
-      case LEFT:
-        moveLeft(tetrominos);
-        break;
-      case RIGHT:
-        moveRight(tetrominos);
-        break;
-      case DOWN:
-        moveDown(tetrominos);
-        break;
-      default:
-        // Andere Tastenaktionen
-        System.out.println("Andere Taste gedrückt: " + event.getCode());
-        break;
-    }
-  }
-
-  // Bewege den Spieler nach links
-  private void moveLeft(Tetromino[] tetrominos) {
-    double newX = playerX - playerSpeed;
-
-    // Überprüfe, ob der Spieler sich innerhalb der Spielfeldgrenzen befindet
-    if (newX < 0) {
-        return;  // Der Spieler ist zu weit links, keine Bewegung
+    public Player(Color[][] grid, Skin skin) {
+        this.grid = grid;
+        this.skin = skin;
+        playerX = 100;
+        playerY = 100;
     }
 
-    // Prüfen, ob der neue X-Wert eine Kollision mit einem Tetromino verursacht
-    for (Tetromino tetromino : tetrominos) {
-        if (!tetromino.canMove(grid, (int)newX, (int)playerY)) {
-            return;  // Kollision, keine Bewegung
+    public void handleKeyPress(KeyEvent event, Tetromino[] tetrominos) {
+        switch (event.getCode()) {
+            case UP:
+                jump();
+                break;
+            case LEFT:
+                moveLeft();
+                break;
+            case RIGHT:
+                moveRight();
+                break;
+            case DOWN:
+                moveDown();
+                break;
+            default:
+                System.out.println("Andere Taste gedrückt: " + event.getCode());
+                break;
         }
     }
 
-    playerX = newX;
-  }
-
-  // Bewege den Spieler nach rechts
-  private void moveRight(Tetromino[] tetrominos) {
-    double newX = playerX + playerSpeed;
-
-    // Überprüfe, ob der Spieler sich innerhalb der Spielfeldgrenzen befindet
-    if (newX + TILE_SIZE > WIDTH * TILE_SIZE) {
-        return;  // Der Spieler ist zu weit rechts, keine Bewegung
-    }
-
-    // Prüfen, ob der neue X-Wert eine Kollision mit einem Tetromino verursacht
-    for (Tetromino tetromino : tetrominos) {
-        if (!tetromino.canMove(grid, (int)newX, (int)playerY)) {
-            return;  // Kollision, keine Bewegung
+    private void moveLeft() {
+        double newX = playerX - playerSpeed;
+        if (newX < 0) {
+            System.out.println("Spieler berührt den linken Rand des Spielfeldes!");
+            return;
         }
+        playerX = newX;
     }
 
-    playerX = newX;
-  }
-
-  // Bewege den Spieler nach unten
-  private void moveDown(Tetromino[] tetrominos) {
-    double newY = playerY + playerSpeed;
-
-    // Überprüfe, ob der Spieler sich innerhalb der Spielfeldgrenzen befindet
-    if (newY + TILE_SIZE > HEIGHT * TILE_SIZE) {
-        return;  // Der Spieler ist zu weit unten, keine Bewegung
-    }
-
-    // Prüfen, ob der neue Y-Wert eine Kollision mit einem Tetromino verursacht
-    for (Tetromino tetromino : tetrominos) {
-        if (!tetromino.canMove(grid, (int)playerX, (int)newY)) {
-            return;  // Kollision, keine Bewegung
+    private void moveRight() {
+        double newX = playerX + playerSpeed;
+        if (newX + TILE_SIZE > WIDTH * TILE_SIZE) {
+            System.out.println("Spieler berührt den rechten Rand des Spielfeldes!");
+            return;
         }
+        playerX = newX;
     }
 
-    playerY = newY;
-  }
+    private void moveDown() {
+        double newY = playerY + playerSpeed;
+        if (newY + TILE_SIZE > HEIGHT * TILE_SIZE) {
+            System.out.println("Spieler berührt den unteren Rand des Spielfeldes!");
+            return;
+        }
+        playerY = newY;
+    }
 
-  // Sprung-Mechanik
-  private void jump() {
-    playerY -= 100;  // Beispielhöhe des Sprungs
-  }
+    private void jump() {
+        double newY = playerY - 100;
+        if (newY < 0) {
+            System.out.println("Spieler berührt den oberen Rand des Spielfeldes!");
+            playerY = 0;
+            return;
+        }
+        playerY = newY;
+    }
 
-  // Überprüfe, ob der Spieler an einem grauen Block ist
-  private boolean isTouchingGray(double x, double y) {
-    int playerGridX = (int) (x / TILE_SIZE);
-    int playerGridY = (int) (y / TILE_SIZE);
-    
-    // Überprüfen, ob das Feld eine graue Farbe hat
-    return grid[playerGridY][playerGridX] != null && grid[playerGridY][playerGridX].equals(Color.GRAY);
-  }
+    // Methode zur Kollisionsprüfung, die wir später im Game-Loop nutzen
+    public boolean isCollidingWithTetromino(Tetromino tetromino) {
+        if (tetromino == null) return false;
 
-  // Getter-Methoden für die Spielerposition
-  public double getPlayerX() {
-    return playerX;
-  }
+        int playerGridX = (int) (playerX / TILE_SIZE);
+        int playerGridY = (int) (playerY / TILE_SIZE);
 
-  public double getPlayerY() {
-    return playerY;
-  }
+        int[] hitbox = tetromino.getHitbox();
+        int tetroLeft = hitbox[0];
+        int tetroTop = hitbox[1];
+        int tetroRight = hitbox[2];
+        int tetroBottom = hitbox[3];
 
-  public void setPlayerPosition(double x, double y) {
-    playerX = x;
-    playerY = y;
-  }
+        if (playerGridX >= tetroLeft && playerGridX <= tetroRight &&
+            playerGridY >= tetroTop && playerGridY <= tetroBottom) {
+            int[][] shape = tetromino.getShape();
+            int relX = playerGridX - tetromino.getX();
+            int relY = playerGridY - tetromino.getY();
+
+            if (relX >= 0 && relX < shape[0].length && relY >= 0 && relY < shape.length) {
+                return shape[relY][relX] != 0;
+            }
+        }
+        return false;
+    }
+
+    // Getter/Setter ...
+    public double getPlayerX() { return playerX; }
+    public double getPlayerY() { return playerY; }
+    public void setPlayerPosition(double x, double y) { playerX = x; playerY = y; }
+    public Skin getSkin() { return skin; }
+    public void setSkin(Skin skin) { this.skin = skin; }
 }
