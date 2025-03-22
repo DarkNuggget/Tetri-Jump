@@ -103,6 +103,7 @@ public class StartScreen {
         for (String option : options) {
             RadioButton btn = new RadioButton(option);
             btn.setToggleGroup(group);
+            btn.setStyle("-fx-text-fill: white;");
             panel.getChildren().add(btn);
         }
         Button confirmButton = createStyledButton("Confirm", event -> {
