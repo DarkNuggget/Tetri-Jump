@@ -1,5 +1,4 @@
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 
 public class Player {
@@ -11,6 +10,10 @@ public class Player {
     private final int WIDTH = 20;
     private final int HEIGHT = 22;
     private Color[][] grid;
+    private double velocityY = 0; // Vertikale Geschwindigkeit für Sprung und Schwerkraft
+    private final double gravity = 1; // Schwerkraft
+    private final double jumpStrength = -15; // Anfangsgeschwindigkeit beim Springen
+    private boolean isJumping = false;
 
     public Player(Color[][] grid, Skin skin) {
         this.grid = grid;
@@ -19,10 +22,12 @@ public class Player {
         playerY = 100;
     }
 
-    public void handleKeyPress(KeyEvent event, Tetromino[] tetrominos) {
+    public void handleKeyPress(KeyEvent event) {
         switch (event.getCode()) {
             case UP:
-                jump();
+                if (!isJumping) {
+                    jump();
+                }
                 break;
             case LEFT:
                 moveLeft();
@@ -38,6 +43,30 @@ public class Player {
                 break;
         }
     }
+  
+    public void update() {
+        velocityY += gravity;
+        double newY = playerY + velocityY;
+
+        if (velocityY > 0) { // Fallend
+            if (isStandingOnBlock(newY)) {
+                newY = Math.floor(newY / TILE_SIZE) * TILE_SIZE; // Auf Block oder Boden ausrichten
+                velocityY = 0;
+                isJumping = false;
+            } else if (newY + TILE_SIZE >= HEIGHT * TILE_SIZE) {
+                newY = (HEIGHT - 1) * TILE_SIZE; // Boden erreicht
+                velocityY = 0;
+                isJumping = false;
+            }
+        } else if (velocityY < 0) { // Springend
+            if (isCollidingWithCeiling(newY)) {
+                newY = Math.ceil(newY / TILE_SIZE) * TILE_SIZE; // An Decke ausrichten
+                velocityY = 0; // Sprung stoppen
+            }
+        }
+
+        playerY = newY;
+    }
 
     private void moveLeft() {
         double newX = playerX - playerSpeed;
@@ -45,7 +74,9 @@ public class Player {
             System.out.println("Spieler berührt den linken Rand des Spielfeldes!");
             return;
         }
-        playerX = newX;
+        if (isPositionValid(newX, playerY)) {
+            playerX = newX;
+        }
     }
 
     private void moveRight() {
@@ -54,7 +85,9 @@ public class Player {
             System.out.println("Spieler berührt den rechten Rand des Spielfeldes!");
             return;
         }
-        playerX = newX;
+        if (isPositionValid(newX, playerY)) {
+            playerX = newX;
+        }
     }
 
     private void moveDown() {
@@ -63,20 +96,47 @@ public class Player {
             System.out.println("Spieler berührt den unteren Rand des Spielfeldes!");
             return;
         }
-        playerY = newY;
+        if (isPositionValid(playerX, newY)) {
+            playerY = newY;
+        }
     }
 
     private void jump() {
-        double newY = playerY - 100;
-        if (newY < 0) {
-            System.out.println("Spieler berührt den oberen Rand des Spielfeldes!");
-            playerY = 0;
-            return;
+        if (!isJumping) {
+            velocityY = jumpStrength;
+            isJumping = true;
         }
-        playerY = newY;
     }
 
-    // Methode zur Kollisionsprüfung, die wir später im Game-Loop nutzen
+    private boolean isPositionValid(double x, double y) {
+        int gridX = (int) (x / TILE_SIZE);
+        int gridY = (int) (y / TILE_SIZE);
+
+        // Außerhalb des Spielfelds?
+        if (gridX < 0 || gridX >= WIDTH || gridY < 0 || gridY >= HEIGHT) {
+            return false;
+        }
+
+        // Kollision mit fixiertem Block?
+        return grid[gridY][gridX] == null;
+    }
+
+    private boolean isStandingOnBlock(double y) {
+        int gridX = (int) (playerX / TILE_SIZE);
+        int gridY = (int) ((y + TILE_SIZE) / TILE_SIZE);
+
+        if (gridY >= HEIGHT) return true; // Boden erreicht
+        return grid[gridY][gridX] != null; // Block darunter
+    }
+
+    private boolean isCollidingWithCeiling(double y) {
+        int gridX = (int) (playerX / TILE_SIZE);
+        int gridY = (int) (y / TILE_SIZE);
+
+        if (gridY < 0) return true; // Obere Grenze
+        return grid[gridY][gridX] != null; // Block darüber
+    }
+
     public boolean isCollidingWithTetromino(Tetromino tetromino) {
         if (tetromino == null) return false;
 
@@ -102,7 +162,7 @@ public class Player {
         return false;
     }
 
-    // Getter/Setter ...
+    // Getter/Setter
     public double getPlayerX() { return playerX; }
     public double getPlayerY() { return playerY; }
     public void setPlayerPosition(double x, double y) { playerX = x; playerY = y; }
