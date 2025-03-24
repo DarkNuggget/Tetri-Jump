@@ -133,11 +133,14 @@ public class TetriAutoGame {
     private void handleKeyPress(KeyEvent event) {
         Tetromino[] tetrominos = (currentTetromino != null) ? new Tetromino[]{currentTetromino} : new Tetromino[0];
         switch (event.getCode()) {
-          
-            default:
-                player.handleKeyPress(event);
+
+            case M:
+                menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
                 break;
-       }
+            default:
+                player.handleKeyPress(event, tetrominos);
+                break;
+        }
     }
 
     // Getter für den Spieler (falls benötigt)

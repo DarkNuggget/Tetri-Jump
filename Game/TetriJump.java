@@ -102,14 +102,19 @@ public class TetriJump {
         // Neues Tetromino erstellen und prüfen, ob es spawnen kann
         currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
         if (!canMove(currentTetromino, 0, 0)) { // Prüfe Spawn-Position
-            gameLoop.stop(); // Spiel beenden
-            scoreText.setText("Game Over - Score: " + score);
-            System.out.println("Game Over");
-            return;
+            endGame(primaryStage);
         }
     }
 }
-  
+ 
+   private void endGame(Stage primaryStage) {
+    gameLoop.stop(); // Stoppe den Game Loop
+    
+    // Zeige den Death Screen an
+    DeathScreen deathScreen = new DeathScreen(score);
+    deathScreen.show(primaryStage);
+}
+
   private void render(GraphicsContext gc) {
     gc.clearRect(0, 0, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
     
