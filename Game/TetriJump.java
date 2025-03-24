@@ -180,7 +180,7 @@ public class TetriJump {
           case S:
               currentTetromino.moveDown(grid);
               break;
-          case M: 
+          case ESCAPE: 
               menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
               break;  
           default:
