@@ -130,29 +130,29 @@ public class TetriAutoGame {
         }
     }
 
-    private void handleKeyPress(KeyEvent event) {
-        Tetromino[] tetrominos = (currentTetromino != null) ? new Tetromino[]{currentTetromino} : new Tetromino[0];
-        switch (event.getCode()) {
-            case SPACE:
-                if (currentTetromino != null) currentTetromino.rotate();
-                break;
-            case A:
-                if (currentTetromino != null) currentTetromino.moveLeft();
-                break;
-            case D:
-                if (currentTetromino != null) currentTetromino.moveRight();
-                break;
-            case S:
-                if (currentTetromino != null) currentTetromino.moveDown();
-                break;
-            case M:
-                menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
-                break;
-            default:
-                player.handleKeyPress(event, tetrominos);
-                break;
-        }
-    }
+//    private void handleKeyPress(KeyEvent event) {
+//        Tetromino[] tetrominos = (currentTetromino != null) ? new Tetromino[]{currentTetromino} : new Tetromino[0];
+//        switch (event.getCode()) {
+//            case SPACE:
+//                if (currentTetromino != null) currentTetromino.rotate();
+//                break;
+//            case A:
+//                if (currentTetromino != null) currentTetromino.moveLeft();
+//                break;
+//            case D:
+//                if (currentTetromino != null) currentTetromino.moveRight();
+//                break;
+//            case S:
+//                if (currentTetromino != null) currentTetromino.moveDown();
+//                break;
+//            case M:
+//                menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
+//                break;
+//            default:
+//                player.handleKeyPress(event);
+//                break;
+//       }
+//    }
 
     // Getter für den Spieler (falls benötigt)
     public Player getPlayer() {
