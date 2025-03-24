@@ -19,7 +19,7 @@ public class Player {
         playerY = 100;
     }
 
-    public void handleKeyPress(KeyEvent event, Tetromino[] tetrominos) {
+    public void handleKeyPress(KeyEvent event) {
         switch (event.getCode()) {
             case UP:
                 jump();
