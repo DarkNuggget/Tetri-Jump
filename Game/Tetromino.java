@@ -47,19 +47,44 @@ public class Tetromino {
     x++;
   }
 
-  public void rotate() {
+  // In der Tetromino-Klasse
+public void rotate(Color[][] grid) {
     int rows = shape.length;
     int cols = shape[0].length;
     int[][] rotatedShape = new int[cols][rows];
     
+    // Rotierte Form berechnen
     for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        rotatedShape[j][rows - 1 - i] = shape[i][j];
-      }
+        for (int j = 0; j < cols; j++) {
+            rotatedShape[j][rows - 1 - i] = shape[i][j];
+        }
     }
     
-    shape = rotatedShape;
-  }
+    // Prüfen, ob die Rotation möglich ist
+    int originalX = x;
+    shape = rotatedShape; // Temporär rotieren
+    if (!canMove(grid, 0, 0)) { // Prüfe aktuelle Position nach Rotation
+        // Wall-Kick: Versuche, das Tetromino nach links oder rechts zu verschieben
+        if (canMove(grid, -1, 0)) {
+            x--; // Nach links verschieben
+        } else if (canMove(grid, 1, 0)) {
+            x++; // Nach rechts verschieben
+        } else if (canMove(grid, -2, 0)) {
+            x -= 2; // Weiter nach links
+        } else if (canMove(grid, 2, 0)) {
+            x += 2; // Weiter nach rechts
+        } else {
+            // Wenn keine Korrektur möglich, Rotation rückgängig machen
+            shape = new int[rows][cols];
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    shape[i][j] = rotatedShape[rows - 1 - j][i];
+                }
+            }
+            x = originalX; // Position zurücksetzen
+        }
+    }
+}
 
   // Überprüft, ob das Tetromino an der neuen Position (mit dx, dy Verschiebung) bewegt werden kann
   public boolean canMove(Color[][] grid, int dx, int dy) {
@@ -205,4 +230,22 @@ public class Tetromino {
   public Color getColor() {
     return color;
   }
+   
+   public void moveDown(Color[][] grid) {
+        if (canMove(grid, 0, 1)) {
+            y++;
+        }
+    }
+    
+    public void moveLeft(Color[][] grid) {
+        if (canMove(grid, -1, 0)) {
+            x--;
+        }
+    }
+    
+    public void moveRight(Color[][] grid) {
+        if (canMove(grid, 1, 0)) {
+            x++;
+        }
+    }
 }
