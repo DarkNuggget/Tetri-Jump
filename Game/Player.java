@@ -24,19 +24,16 @@ public class Player {
 
     public void handleKeyPress(KeyEvent event) {
         switch (event.getCode()) {
-            case UP:
+            case SPACE:
                 if (!isJumping) {
                     jump();
                 }
                 break;
-            case LEFT:
+            case A:
                 moveLeft();
                 break;
-            case RIGHT:
+            case D:
                 moveRight();
-                break;
-            case DOWN:
-                moveDown();
                 break;
             default:
                 System.out.println("Andere Taste gedrückt: " + event.getCode());
