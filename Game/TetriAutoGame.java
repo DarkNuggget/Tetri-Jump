@@ -30,8 +30,8 @@ public class TetriAutoGame {
     private Random random = new Random();
     private Player player;
   
-  private double tetrominoFallSpeed = 2.5; // Pixel pro Frame, z. B. 0.5 für langsameren Fall
-  private double tetrominoYPosition = 0; // Zwischenspeicher für die genaue Y-Position
+  private double tetrominoFallSpeed = 2.5;
+  private double tetrominoYPosition = 0;
   
     private boolean lastCollisionState = false;
 
@@ -152,7 +152,7 @@ public class TetriAutoGame {
     private void handleKeyPress(KeyEvent event) {
         Tetromino[] tetrominos = (currentTetromino != null) ? new Tetromino[]{currentTetromino} : new Tetromino[0];
         switch (event.getCode()) {
-            case ESCAPE:
+            case M:
                 menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
                 break;
             default:
@@ -167,25 +167,25 @@ public class TetriAutoGame {
     }
   
     private void spawnRandomTetromino() {
-    int maxAttempts = 10;
-    int attempt = 0;
-    boolean validPosition = false;
-    int spawnX;
-
-    while (!validPosition && attempt < maxAttempts) {
-        spawnX = random.nextInt(WIDTH - 4);
-        currentTetromino = Tetromino.createRandomTetromino(spawnX, 0);
-        validPosition = isSpawnAreaFree(currentTetromino); // Hier wird die Methode aufgerufen
-        attempt++;
-
-        if (!validPosition && attempt >= maxAttempts) {
-            gameLoop.stop();
-            System.out.println("Game Over: Kein Platz zum Spawnen!");
-            return;
+        int maxAttempts = 10;
+        int attempt = 0;
+        boolean validPosition = false;
+        int spawnX;
+    
+        while (!validPosition && attempt < maxAttempts) {
+            spawnX = random.nextInt(WIDTH - 4);
+            currentTetromino = Tetromino.createRandomTetromino(spawnX, 0);
+            validPosition = isSpawnAreaFree(currentTetromino);
+            attempt++;
+    
+            if (!validPosition && attempt >= maxAttempts) {
+                gameLoop.stop();
+                System.out.println("Game Over: Kein Platz zum Spawnen!");
+                return;
+            }
         }
+        tetrominoYPosition = currentTetromino.getY() * TILE_SIZE; // Initialisiere Y-Position
     }
-    tetrominoYPosition = currentTetromino.getY() * TILE_SIZE; // Initialisiere Y-Position
-}
   
     private void updateGame() {
     // Tetromino langsam fallen lassen
@@ -207,12 +207,10 @@ public class TetriAutoGame {
     } else {
         fixTetromino(currentTetromino);
         clearFullRows();
-        
+        spawnRandomTetromino(); // Direkter Aufruf ohne Verzögerung
         tetrominoYPosition = currentTetromino.getY() * TILE_SIZE; // Reset der Y-Position
     }
 }
- 
-
   
     private boolean isTetrominoCollidingWithPlayer(Tetromino tetromino) {
         if (tetromino == null) return false;
