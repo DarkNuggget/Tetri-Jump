@@ -152,7 +152,7 @@ public class TetriAutoGame {
     private void handleKeyPress(KeyEvent event) {
         Tetromino[] tetrominos = (currentTetromino != null) ? new Tetromino[]{currentTetromino} : new Tetromino[0];
         switch (event.getCode()) {
-            case M:
+            case ESCAPE:
                 menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
                 break;
             default:
