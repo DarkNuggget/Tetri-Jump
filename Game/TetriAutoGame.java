@@ -207,20 +207,12 @@ public class TetriAutoGame {
     } else {
         fixTetromino(currentTetromino);
         clearFullRows();
-        spawnRandomTetrominoWithDelay(); // Neue Methode mit Verzögerung
+        
         tetrominoYPosition = currentTetromino.getY() * TILE_SIZE; // Reset der Y-Position
     }
 }
  
- private void spawnRandomTetrominoWithDelay() {
-    gameLoop.pause(); // Spiel kurz pausieren
-    Timeline spawnDelay = new Timeline(new KeyFrame(Duration.seconds(1), e -> { // 1 Sekunde Verzögerung
-        spawnRandomTetromino();
-        gameLoop.play(); // Spiel fortsetzen
-    }));
-    spawnDelay.setCycleCount(1);
-    spawnDelay.play();
-}
+
   
     private boolean isTetrominoCollidingWithPlayer(Tetromino tetromino) {
         if (tetromino == null) return false;
