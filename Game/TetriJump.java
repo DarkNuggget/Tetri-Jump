@@ -11,6 +11,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.scene.effect.Glow;
+import java.io.File;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class TetriJump {
   
@@ -26,12 +33,13 @@ public class TetriJump {
   private Tetromino currentTetromino;
   private InGameMenu menu = new InGameMenu();
   
-  // Score und Combo-System
+  private StartScreen startScreen;
   private int score = 0;
   private int comboMultiplier = 1; // Für zusätzliche Belohnung bei Ketten
   private Text scoreText;
   private Text comboText; // Zeigt den Combo-Multiplikator
   private Timeline scoreIncrementer;
+  private boolean showGrid;  
   
   public TetriJump(Stage primaryStage, TetriGui app) {
     this.primaryStage = primaryStage;
@@ -42,6 +50,11 @@ public class TetriJump {
   public void createGame(Stage primaryStage, int width, int height) {
     Pane root = new Pane();
     root.setStyle("-fx-background-color: #1a1a1a;"); // Dunkler, professioneller Hintergrund
+    
+    File backgroundFile = new File("Hintergrund/MainMenuHintergrund.jpg");  // Pfad zu deinem Bild
+    String bgUri = backgroundFile.toURI().toString();
+    ImageView backgroundImageView = new ImageView(new Image(bgUri, 600, 700, false, true));
+    root.getChildren().add(backgroundImageView);  // Füge das Bild als Hintergrund hinzu
     
     // Canvas für das Spielfeld
     Canvas canvas = new Canvas(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
@@ -77,7 +90,7 @@ public class TetriJump {
   
   private void startGame(GraphicsContext gc) {
     currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
-    
+  
     gameLoop = new Timeline(new KeyFrame(Duration.millis(300), e -> {
       updateGame();
       render(gc);
@@ -88,33 +101,33 @@ public class TetriJump {
   
   private void updateGame() {
     if (canMove(currentTetromino, 0, 1)) {
-        currentTetromino.moveDown(grid); // Grid übergeben
+      currentTetromino.moveDown(grid); // Grid übergeben
     } else {
-        fixTetromino(currentTetromino);
-        int clearedRows = clearFullRows();
-        if (clearedRows > 0) {
-            comboMultiplier = Math.min(comboMultiplier + clearedRows, 5);
-        } else {
-            comboMultiplier = 1;
-        }
-        updateComboDisplay();
-        
-        // Neues Tetromino erstellen und prüfen, ob es spawnen kann
-        currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
-        if (!canMove(currentTetromino, 0, 0)) { // Prüfe Spawn-Position
-            endGame(primaryStage);
-        }
+      fixTetromino(currentTetromino);
+      int clearedRows = clearFullRows();
+      if (clearedRows > 0) {
+        comboMultiplier = Math.min(comboMultiplier + clearedRows, 5);
+      } else {
+        comboMultiplier = 1;
+      }
+      updateComboDisplay();
+      
+      // Neues Tetromino erstellen und prüfen, ob es spawnen kann
+      currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
+      if (!canMove(currentTetromino, 0, 0)) { // Prüfe Spawn-Position
+        endGame(primaryStage);
+      }
     }
-}
- 
-   private void endGame(Stage primaryStage) {
+  }
+  
+  private void endGame(Stage primaryStage) {
     gameLoop.stop(); // Stoppe den Game Loop
     
     // Zeige den Death Screen an
     DeathScreen deathScreen = new DeathScreen(score);
     deathScreen.show(primaryStage);
-}
-
+  }
+  
   private void render(GraphicsContext gc) {
     gc.clearRect(0, 0, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
     
@@ -130,14 +143,24 @@ public class TetriJump {
       }
     }
     
+      gc.setStroke(Color.rgb(169, 169, 169, 0.5)); // Leicht graue Farbe für das Gitter
+      gc.setLineWidth(0.5); // Dünne Linien für das Gitter
+      for (int x = 0; x < WIDTH; x++) {
+          gc.strokeLine(x * TILE_SIZE, 0, x * TILE_SIZE, HEIGHT * TILE_SIZE); // Vertikale Linien
+      }
+      for (int y = 0; y < HEIGHT; y++) {
+          gc.strokeLine(0, y * TILE_SIZE, WIDTH * TILE_SIZE, y * TILE_SIZE); // Horizontale Linien
+      }
+  
     // Render Tetromino
     currentTetromino.render(gc, TILE_SIZE);
   }
-
+  
+  
   public boolean canMove(Tetromino tetromino, int dx, int dy) {
     return tetromino.canMove(grid, dx, dy);
   }
-
+  
   public void fixTetromino(Tetromino tetromino) {
     tetromino.fixToGrid(grid);
   }
@@ -165,41 +188,41 @@ public class TetriJump {
     }
     return clearedRows;
   }
-
-    private void handleKeyPress(KeyEvent event) {
-      switch (event.getCode()) {
-          case SPACE:
-              currentTetromino.rotate(grid);
-              break;
-          case A:
-              currentTetromino.moveLeft(grid);
-              break;
-          case D:
-              currentTetromino.moveRight(grid);
-              break;
-          case S:
-              currentTetromino.moveDown(grid);
-              break;
-          case ESCAPE: 
-              menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
-              break;  
-          default:
-              System.out.println("Falsche Taste");
-      }
+  
+  private void handleKeyPress(KeyEvent event) {
+    switch (event.getCode()) {
+      case SPACE:
+        currentTetromino.rotate(grid);
+        break;
+      case A:
+        currentTetromino.moveLeft(grid);
+        break;
+      case D:
+        currentTetromino.moveRight(grid);
+        break;
+      case S:
+        currentTetromino.moveDown(grid);
+        break;
+      case ESCAPE: 
+        menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
+        break;  
+      default:
+        System.out.println("Falsche Taste");
+    }
   }
   
-  public Scene getGameScene() {
+  public Scene getGameScene() {                                                    
     return gameScene;
   }
 
   private void updateScoreDisplay() {
     scoreText.setText("Score: " + score);
   }
-
+  
   private void updateComboDisplay() {
     comboText.setText("Combo: x" + comboMultiplier);
   }
-
+  
   private void incrementScore() {
     // Einfaches Inkrement für die kontinuierliche Punktzahl (optional)
     score += 1;

@@ -2,10 +2,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.*;
-import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -16,99 +12,94 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShopScreen {
-  private final TetriJumpShop mainApp;
-  private int tetriCoins; // Startwert für TetriCoins
-  private List<VBox> skinBoxes = new ArrayList<>();
-  private Label coinLabel;
-  TetriGui tetriGui;
-  MusikPlayer musikPlayer;
-  // Konstruktor für ShopScreen, der die TetriJumpShop Instanz benötigt
-  public ShopScreen(TetriJumpShop mainApp, TetriGui tetriGui) {
-    this.mainApp = mainApp;
-    this.tetriCoins = mainApp.getTetriCoins(); // Holen der TetriCoins vom Hauptbildschirm
-    this.tetriGui = tetriGui;  // Initialize tetriGui with the passed instance
-  }
-  
-  
-  // Diese Methode gibt die Scene für den Shop zurück
-  public Scene getScene() {
-    VBox shopLayout = new VBox(20);
-    shopLayout.setPadding(new Insets(20));
-    
-    
-    File backgroundFile = new File("Hintergrund/McDonals.jpg");
-      String bgUri = backgroundFile.toURI().toString();
+    private final TetriJumpShop mainApp;
+    private int tetriCoins; // Startwert für TetriCoins
+    private List<VBox> skinBoxes = new ArrayList<>();
+    private Label coinLabel;
+    TetriGui tetriGui;
+    MusikPlayer musikPlayer;
+
+    // Konstruktor für ShopScreen, der die TetriJumpShop Instanz benötigt
+    public ShopScreen(TetriJumpShop mainApp, TetriGui tetriGui) {
+        this.mainApp = mainApp;
+        this.tetriCoins = mainApp.getTetriCoins(); // Holen der TetriCoins vom Hauptbildschirm
+        this.tetriGui = tetriGui;  // Initialize tetriGui with the passed instance
+    }
+
+    // Diese Methode gibt die Scene für den Shop zurück
+    public Scene getScene() {
+        VBox shopLayout = new VBox(20);
+        shopLayout.setPadding(new Insets(20));
+
+        // Hintergrund für das Shop-Layout
+        File backgroundFile = new File("Hintergrund/McDonals.jpg");
+        String bgUri = backgroundFile.toURI().toString();
         BackgroundImage bgImage = new BackgroundImage(new Image(bgUri),
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
                 BackgroundSize.DEFAULT);
         shopLayout.setBackground(new Background(bgImage));
-      
-    // TetriCoins Kasten oben rechts
-    HBox coinBox = new HBox();
-    coinBox.setPadding(new Insets(10));
-    coinBox.setAlignment(Pos.CENTER);
-    coinBox.setStyle("-fx-background-color: #FFD700; -fx-background-radius: 10; -fx-padding: 8px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0.5, 1, 1);");
-    
-    coinLabel = new Label("💰 " + tetriCoins);
-    coinLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: black;");
-    coinBox.getChildren().add(coinLabel);
-    
-    // Layout für die obere Leiste mit Shop-Name und Coin-Box
-    HBox topBar = new HBox();
-    topBar.setPadding(new Insets(10));
-    topBar.setAlignment(Pos.CENTER);
-    topBar.setSpacing(700); // Abstand zwischen Titel und Coin-Box
-    Label shopTitle = new Label("Tetri-Jump Shop");
-    shopTitle.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #4A90E2;");
-    topBar.getChildren().addAll(shopTitle, coinBox);
-    
-    // Shop Beschreibung
-    Label shopDescription = new Label("Kaufe und wende Skins für deinen Charakter an!");
-    shopDescription.setStyle("-fx-font-size: 18px; -fx-text-fill: #555;");
-    
-    // Grid für Skins
-    GridPane skinGrid = new GridPane();
-    skinGrid.setHgap(15);
-    skinGrid.setVgap(15);
-    skinGrid.setAlignment(Pos.CENTER);
-    
-    // Holen der Skins aus der Hauptanwendung
-    List<Skin> skins = mainApp.getSkins(); 
-    
-    // Erstellen von Boxen für jedes Skin und Hinzufügen zu einem Grid
-    for (int i = 0; i < skins.size(); i++) {
-      int row = i / 6;  // Berechnung der Zeile
-      int col = i % 6;  // Berechnung der Spalte
-      VBox skinBox = createSkinBox(skins.get(i));
-      skinGrid.add(skinBox, col, row); // SkinBox zu Grid hinzufügen
-      skinBoxes.add(skinBox); // Hinzufügen zur Liste der Skin-Boxen
+
+        // TetriCoins Kasten oben rechts
+        HBox coinBox = new HBox();
+        coinBox.setPadding(new Insets(10));
+        coinBox.setAlignment(Pos.CENTER);
+        coinBox.setStyle("-fx-background-color: #FFD700; -fx-background-radius: 10; -fx-padding: 8px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0.5, 1, 1);");
+
+        coinLabel = new Label("💰 " + tetriCoins);
+        coinLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: black;");
+        coinBox.getChildren().add(coinLabel);
+
+        // Layout für die obere Leiste mit Shop-Name und Coin-Box
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(10));
+        topBar.setAlignment(Pos.CENTER);
+        topBar.setSpacing(700); // Abstand zwischen Titel und Coin-Box
+        topBar.getChildren().addAll(coinBox);
+
+       
+
+        // Grid für Skins
+        GridPane skinGrid = new GridPane();
+        skinGrid.setHgap(15);
+        skinGrid.setVgap(15);
+        skinGrid.setAlignment(Pos.CENTER);
+
+        // Holen der Skins aus der Hauptanwendung
+        List<Skin> skins = mainApp.getSkins();
+
+        // Erstellen von Boxen für jedes Skin und Hinzufügen zu einem Grid
+        for (int i = 0; i < skins.size(); i++) {
+            int row = i / 2;  // Berechnung der Zeile (2 Skins pro Zeile)
+            int col = i % 2;  // Berechnung der Spalte (2 Spalten nebeneinander)
+            VBox skinBox = createSkinBox(skins.get(i));
+            skinGrid.add(skinBox, col, row); // SkinBox zu Grid hinzufügen
+            skinBoxes.add(skinBox); // Hinzufügen zur Liste der Skin-Boxen
+        }
+
+        // Zurück-Button
+        Button backButton = new Button("Zurück");
+        backButton.setOnAction(e -> {
+            if (tetriGui != null) {
+                System.out.println("Zurück zum Startbildschirm");
+                tetriGui.showStartScreen();  // Zeigt den Startbildschirm an
+                InGameMenu.musikPlayer.stoppeAktuelleMusik();
+                InGameMenu.musikPlayer.startMenuMusik();
+            } else {
+                System.err.println("tetriGui ist null, kann den Startbildschirm nicht anzeigen.");
+            }
+        });
+
+        // Hinzufügen der Layout-Komponenten zur Haupt-Layout
+        shopLayout.getChildren().addAll(topBar, skinGrid, backButton);
+
+        // Rückgabe der Scene für den Shop
+        return new Scene(shopLayout, 600, 800);
     }
-    
-    // Zurück-Button
-    Button backButton = new Button("Zurück");
-    backButton.setOnAction(e -> {
-      if (tetriGui != null) {
-        System.out.println("Zurück zum Startbildschirm");
-        tetriGui.showStartScreen();  // Zeigt den Startbildschirm an
-        InGameMenu.musikPlayer.stoppeAktuelleMusik();
-        InGameMenu.musikPlayer.startMenuMusik();
-      } else {
-        System.err.println("tetriGui ist null, kann den Startbildschirm nicht anzeigen.");
-      }
-    });
-    
-    
-    // Hinzufügen der Layout-Komponenten zur Haupt-Layout
-    shopLayout.getChildren().addAll(topBar, shopDescription, skinGrid, backButton);
-    
-    // Rückgabe der Scene für den Shop
-    return new Scene(shopLayout, 1200, 600);
-  }
 
     // Hilfsmethode zum Erstellen von Skin-Boxen
-   private VBox createSkinBox(Skin skin) {
+    private VBox createSkinBox(Skin skin) {
         VBox skinBox = new VBox(10);
         skinBox.setAlignment(Pos.CENTER);
 
@@ -151,7 +142,7 @@ public class ShopScreen {
         skinBox.getChildren().addAll(skinImage, skinLabel, buttonBox);
         return skinBox;
     }
-  
+
     private void updateButtons() {
         for (VBox skinBox : skinBoxes) {
             Label label = (Label) skinBox.getChildren().get(1);
@@ -164,5 +155,5 @@ public class ShopScreen {
             applyButton.setDisable(!skin.isBought() || mainApp.getActiveSkin().equals(skin.getName()));
             buyButton.setDisable(skin.isBought());
         }
-     }
-   }
+    }
+}
