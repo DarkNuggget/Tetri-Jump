@@ -51,13 +51,12 @@ public class TetriAutoGame {
         
         gameScene = new Scene(root, width * TILE_SIZE, height * TILE_SIZE);
         gameScene.setOnKeyPressed(event -> handleKeyPress(event));
+        gameScene.setOnKeyReleased(event -> player.handleKeyRelease(event)); // Neu: KeyReleased-Handler
         
-        // Spieler initialisieren
         Skin defaultSkin = new Skin("BernDasBrot", "Skins/BerndDasBrot.png", true);
         player = new Player(grid, defaultSkin);
         spawnPlayerRandomly();
         
-        // Tetromino initialisieren
         spawnRandomTetromino();
         
         startGame(gc);  
