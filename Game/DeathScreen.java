@@ -1,13 +1,21 @@
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.BackgroundRepeat;
 
 public class DeathScreen {
     private TetriGui app = new TetriGui();
     private int score;
     public final static MusikPlayer musikPlayer = new MusikPlayer();
+
     public DeathScreen(int score) {
         this.score = score;
     }
@@ -38,8 +46,17 @@ public class DeathScreen {
                 musikPlayer.stoppeAktuelleMusik();
             });
 
-        // Layout für den Death Screen
+        // Füge das Bild als Hintergrund hinzu
+        Image image = new Image("Hintergrund/DeathScreen.jpg");  // Pfad zum Bild
+        BackgroundImage backgroundImage = new BackgroundImage(image, 
+                BackgroundRepeat.NO_REPEAT, 
+                BackgroundRepeat.NO_REPEAT, 
+                BackgroundPosition.CENTER, 
+                new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false));
         StackPane layout = new StackPane();
+        layout.setBackground(new Background(backgroundImage));
+
+        // Layout für den Death Screen
         layout.getChildren().addAll(deathMessage, restartButton);
 
         // Text und Button positionieren
@@ -47,8 +64,8 @@ public class DeathScreen {
         StackPane.setAlignment(restartButton, javafx.geometry.Pos.BOTTOM_CENTER);
 
         // Szene und Stage
-        Scene scene = new Scene(layout, 400, 300);
-        scene.setFill(javafx.scene.paint.Color.BLACK); // Hintergrundfarbe auf schwarz setzen
+        Scene scene = new Scene(layout, 600, 700);
+        
 
         // Stage konfigurieren
         primaryStage.setTitle("Death Screen");
@@ -57,5 +74,4 @@ public class DeathScreen {
     }
 
     // Funktion um das Spiel neu zu starten
-   
 }
