@@ -5,7 +5,7 @@ public class Player {
     private double playerX;
     private double playerY;
     private Skin skin;
-    private final double playerSpeed = 30;
+    private final double playerSpeed = 5;
     private final int TILE_SIZE = 30;
     private final int WIDTH = 20;
     private final int HEIGHT = 22;
@@ -14,6 +14,11 @@ public class Player {
     private final double gravity = 1; // Schwerkraft
     private final double jumpStrength = -15; // Anfangsgeschwindigkeit beim Springen
     private boolean isJumping = false;
+  
+    private boolean leftPressed = false;
+    private boolean rightPressed = false;
+    private boolean downPressed = false;
+    private boolean jumpRequested = false;
 
     public Player(Color[][] grid, Skin skin) {
         this.grid = grid;
@@ -24,44 +29,79 @@ public class Player {
 
     public void handleKeyPress(KeyEvent event) {
         switch (event.getCode()) {
+            case LEFT:
+                leftPressed = true;
+                break;
+            case RIGHT:
+                rightPressed = true;
+                break;
+            case DOWN:
+                downPressed = true;
+                break;
             case SPACE:
-                if (!isJumping) {
-                    jump();
-                }
-                break;
-            case A:
-                moveLeft();
-                break;
-            case D:
-                moveRight();
+                jumpRequested = true;
                 break;
             default:
-                System.out.println("Andere Taste gedrückt: " + event.getCode());
+                System.out.println("False Taste:  " + event.getCode());
+                break;
+        }
+    }
+  
+    public void handleKeyRelease(KeyEvent event) {
+        switch (event.getCode()) {
+            case LEFT:
+                leftPressed = false;
+                break;
+            case RIGHT:
+                rightPressed = false;
+                break;
+            case DOWN:
+                downPressed = false;
+                break;
+            case SPACE:
+                jumpRequested = false;
                 break;
         }
     }
   
     public void update() {
+        // Horizontale Bewegung
+        if (leftPressed) {
+            moveLeft();
+        }
+        if (rightPressed) {
+            moveRight();
+        }
+        if (downPressed) {
+            moveDown();
+        }
+        if (jumpRequested && !isJumping) {
+            jump();
+            jumpRequested = false; // Sprung nur einmal auslösen
+        }
+    
+        // Schwerkraft anwenden
         velocityY += gravity;
         double newY = playerY + velocityY;
-
+    
+        // Prüfe Kollision mit fixierten Blöcken oder Boden
         if (velocityY > 0) { // Fallend
             if (isStandingOnBlock(newY)) {
-                newY = Math.floor(newY / TILE_SIZE) * TILE_SIZE; // Auf Block oder Boden ausrichten
+                newY = Math.floor(newY / TILE_SIZE) * TILE_SIZE;
                 velocityY = 0;
                 isJumping = false;
             } else if (newY + TILE_SIZE >= HEIGHT * TILE_SIZE) {
-                newY = (HEIGHT - 1) * TILE_SIZE; // Boden erreicht
+                newY = (HEIGHT - 1) * TILE_SIZE;
                 velocityY = 0;
                 isJumping = false;
             }
         } else if (velocityY < 0) { // Springend
             if (isCollidingWithCeiling(newY)) {
-                newY = Math.ceil(newY / TILE_SIZE) * TILE_SIZE; // An Decke ausrichten
-                velocityY = 0; // Sprung stoppen
+                newY = Math.ceil(newY / TILE_SIZE) * TILE_SIZE;
+                velocityY = 0;
             }
         }
-
+    
         playerY = newY;
     }
 
