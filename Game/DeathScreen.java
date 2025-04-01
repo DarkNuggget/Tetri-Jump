@@ -5,6 +5,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
+import javafx.scene.text.Text;
+import javafx.scene.text.Font;
+import javafx.scene.paint.Color;
 import java.io.File;
 
 public class DeathScreen {
@@ -30,7 +33,16 @@ public class DeathScreen {
         ImageView BerndBild = new ImageView(new Image(new File("Bilder/BerndTot.png").toURI().toString()));
         BerndBild.setFitWidth(600);
         BerndBild.setFitHeight(500);
-//        BerndBild.setX(300);
+
+        // Erstelle das Score-Symbol
+        ImageView scoreIcon = new ImageView(new Image(new File("Bilder/scoreicon.png").toURI().toString())); // Beispiel: Bild für das Score-Symbol
+        scoreIcon.setFitWidth(50);
+        scoreIcon.setFitHeight(50);
+
+        // Erstelle den Text für den Score (mit weißer Farbe)
+        Text scoreText = new Text("Score: " + score);
+        scoreText.setFont(new Font(30)); // Schriftgröße anpassen
+        scoreText.setFill(Color.WHITE); // Textfarbe auf Weiß setzen
 
         // Button erstellen mit dem gleichen Design wie auf dem Startscreen
         Button restartButton = createStyledButton("Bilder/MainMenu.png", event -> {
@@ -43,13 +55,19 @@ public class DeathScreen {
         // Layout für den Death Screen
         StackPane overlay = new StackPane();
 
-        // Füge das Bild und die Buttons zu diesem Overlay hinzu
-        overlay.getChildren().addAll(deathScreenText,BerndBild,restartButton);
+        // Füge das Bild, das Score-Symbol, den Score-Text und die Buttons zu diesem Overlay hinzu
+        overlay.getChildren().addAll(deathScreenText, BerndBild, scoreIcon, scoreText, restartButton);
 
         // Bild und Button positionieren
         StackPane.setAlignment(deathScreenText, Pos.TOP_CENTER);
         StackPane.setAlignment(restartButton, Pos.BOTTOM_CENTER);
         StackPane.setAlignment(BerndBild, Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(scoreIcon, Pos.TOP_CENTER);
+        StackPane.setAlignment(scoreText, Pos.CENTER);
+
+        // Das Score-Symbol und der Text werden unterhalb des Bernd-Bildes angezeigt
+        StackPane.setMargin(scoreIcon, new javafx.geometry.Insets(20, 0, 50, 0)); // Abstand zum Bernd-Bild
+        StackPane.setMargin(scoreText, new javafx.geometry.Insets(20, 0, 100, 0)); // Abstand zum Score-Symbol
 
         // Spielfeld bleibt im Hintergrund sichtbar
         StackPane layout = new StackPane();
