@@ -20,14 +20,15 @@ public class InGameMenu {
   
  public void loadMenu(Pane gameRoot, Stage primaryStage) {
     if (modeRoot == null) {
-        modeRoot = new VBox(60);  // Erhöhe den Abstand zwischen den Buttons (z.B. 40 statt 30)
+        modeRoot = new VBox(40);  // Erhöhe den Abstand zwischen den Buttons (z.B. 40 statt 30)
         modeRoot.setAlignment(Pos.CENTER);
         
         // Setze eine größere Mindestgröße für das Menü
-        modeRoot.setMinWidth(400);  // Mindestbreite des Menüs
+        modeRoot.setMinWidth(600);  // Mindestbreite des Menüs
         modeRoot.setMinHeight(300); // Mindesthöhe des Menüs
         
-      
+       modeRoot.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6); -fx-padding: 40px; -fx-background-radius: 10px;");
+       
         // Resume-Button
         Button resumeButton = createStyledButton("Bilder/Resume.png", event -> {
             gameRoot.getChildren().remove(modeRoot);
@@ -52,7 +53,7 @@ public class InGameMenu {
         gameRoot.getChildren().add(modeRoot);
 
         // Position des Menüs festlegen
-        modeRoot.setLayoutX(100);
+        modeRoot.setLayoutX(0);
         modeRoot.setLayoutY(150);
 
         // TranslateTransition für das Menü (nur einmal beim Laden)
