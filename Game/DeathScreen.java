@@ -1,77 +1,91 @@
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.BackgroundRepeat;
+import javafx.geometry.Pos;
+import java.io.File;
 
 public class DeathScreen {
     private TetriGui app = new TetriGui();
     private int score;
+    private Stage primaryStage;
+    private Scene previousScene;
+
     public final static MusikPlayer musikPlayer = new MusikPlayer();
 
-    public DeathScreen(int score) {
+    public DeathScreen(int score, Stage primaryStage, Scene previousScene) {
         this.score = score;
+        this.primaryStage = primaryStage;
+        this.previousScene = previousScene;
     }
 
-    public void show(Stage primaryStage) {
-        // Erstelle den Text für das "Game Over"
-        Text deathMessage = new Text("Du bist gestorben! Score: " + score);
-        deathMessage.setStyle(
-                "-fx-font-size: 30px; " +
-                "-fx-fill: red; " +
-                "-fx-font-family: Arial; " +
-                "-fx-font-weight: bold; " +
-                "-fx-effect: dropshadow(gaussian, rgba(255, 0, 0, 0.7), 10, 0.5, 0, 0);");
+    public void show() {
+        // Erstelle ein Bild für den "Game Over"-Text
+        ImageView deathScreenText = new ImageView(new Image(new File("Bilder/deathscreentext.png").toURI().toString()));
+        deathScreenText.setFitWidth(300);
+        deathScreenText.setFitHeight(150);
+     
+        ImageView BerndBild = new ImageView(new Image(new File("Bilder/BerndTot.png").toURI().toString()));
+        BerndBild.setFitWidth(600);
+        BerndBild.setFitHeight(500);
+//        BerndBild.setX(300);
 
-        // Erstelle den Button, um ein neues Spiel zu starten
-        Button restartButton = new Button("Main Menu");
-        restartButton.setStyle(
-                "-fx-font-size: 20px; " +
-                "-fx-background-color: #ff4747; " +
-                "-fx-text-fill: white; " +
-                "-fx-padding: 10px 20px; " +
-                "-fx-border-radius: 10px; " +
-                "-fx-cursor: hand;");
-
-        restartButton.setOnAction(event -> {
-                System.out.println("Returning to Main Menu...");
-                app.showStartScreen();
-                musikPlayer.stoppeAktuelleMusik();
-            });
-
-        // Füge das Bild als Hintergrund hinzu
-        Image image = new Image("Hintergrund/DeathScreen.jpg");  // Pfad zum Bild
-        BackgroundImage backgroundImage = new BackgroundImage(image, 
-                BackgroundRepeat.NO_REPEAT, 
-                BackgroundRepeat.NO_REPEAT, 
-                BackgroundPosition.CENTER, 
-                new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false));
-        StackPane layout = new StackPane();
-        layout.setBackground(new Background(backgroundImage));
+        // Button erstellen mit dem gleichen Design wie auf dem Startscreen
+        Button restartButton = createStyledButton("Bilder/MainMenu.png", event -> {
+            System.out.println("Returning to Main Menu...");
+            app.showStartScreen();
+            musikPlayer.stoppeAktuelleMusik();
+            musikPlayer.startMenuMusik();
+        });                                                                                         
 
         // Layout für den Death Screen
-        layout.getChildren().addAll(deathMessage, restartButton);
+        StackPane overlay = new StackPane();
 
-        // Text und Button positionieren
-        StackPane.setAlignment(deathMessage, javafx.geometry.Pos.TOP_CENTER);
-        StackPane.setAlignment(restartButton, javafx.geometry.Pos.BOTTOM_CENTER);
+        // Füge das Bild und die Buttons zu diesem Overlay hinzu
+        overlay.getChildren().addAll(deathScreenText,BerndBild,restartButton);
 
-        // Szene und Stage
-        Scene scene = new Scene(layout, 600, 700);
-        
+        // Bild und Button positionieren
+        StackPane.setAlignment(deathScreenText, Pos.TOP_CENTER);
+        StackPane.setAlignment(restartButton, Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(BerndBild, Pos.BOTTOM_CENTER);
+
+        // Spielfeld bleibt im Hintergrund sichtbar
+        StackPane layout = new StackPane();
+        layout.getChildren().addAll(previousScene.getRoot(), overlay);
+
+        // Erstelle die Szene
+        Scene deathScene = new Scene(layout, 600, 700);
 
         // Stage konfigurieren
         primaryStage.setTitle("Death Screen");
-        primaryStage.setScene(scene);
+        primaryStage.setScene(deathScene);
         primaryStage.show();
     }
 
-    // Funktion um das Spiel neu zu starten
+    private Button createStyledButton(String imagePath, javafx.event.EventHandler<javafx.event.ActionEvent> action) {
+        Button button = new Button();
+        ImageView icon = new ImageView(new Image(new File(imagePath).toURI().toString()));
+        icon.setFitWidth(140);
+        icon.setFitHeight(40);
+        button.setGraphic(icon);
+        button.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;"); 
+        button.setMinWidth(110);
+        button.setMinHeight(60);
+        button.setOnAction(action);
+
+        // Hover-Effekt hinzufügen
+        button.setOnMouseEntered(event -> {
+            icon.setFitWidth(160);
+            icon.setFitHeight(45);
+        });
+
+        button.setOnMouseExited(event -> {
+            icon.setFitWidth(150);
+            icon.setFitHeight(40);
+        });
+
+        return button;
+    }
 }

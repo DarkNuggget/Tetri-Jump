@@ -18,6 +18,7 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import javafx.scene.effect.GaussianBlur;
 
 public class TetriJump {
   
@@ -90,7 +91,7 @@ public class TetriJump {
   
   private void startGame(GraphicsContext gc) {
     currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
-  
+    
     gameLoop = new Timeline(new KeyFrame(Duration.millis(300), e -> {
       updateGame();
       render(gc);
@@ -115,18 +116,31 @@ public class TetriJump {
       // Neues Tetromino erstellen und prüfen, ob es spawnen kann
       currentTetromino = Tetromino.createRandomTetromino(WIDTH / 2, 0);
       if (!canMove(currentTetromino, 0, 0)) { // Prüfe Spawn-Position
-        endGame(primaryStage);
+        endGame(primaryStage); // Spiel stoppen und Bildschirm zeigen
       }
     }
   }
   
   private void endGame(Stage primaryStage) {
     gameLoop.stop(); // Stoppe den Game Loop
+    scoreIncrementer.stop(); // Stoppe den Score-Inkrementer, damit der Score nicht weiter geht
     
     // Zeige den Death Screen an
-    DeathScreen deathScreen = new DeathScreen(score);
-    deathScreen.show(primaryStage);
+    Scene previousScene = primaryStage.getScene(); // Annahme, dass die aktuelle Szene des Spiels geladen ist
+    
+    // Wende den Unschärfe-Effekt auf das Root-Element der aktuellen Szene an
+    if (previousScene != null) {
+      GaussianBlur blur = new GaussianBlur();
+      blur.setRadius(10); // Stärke der Unschärfe anpassen
+      previousScene.getRoot().setEffect(blur); // Wende den Effekt auf das Root-Element der Szene an
+    }
+    
+    // Erstelle und zeige den DeathScreen
+    DeathScreen deathScreen = new DeathScreen(score, primaryStage, previousScene);
+    deathScreen.show();
   }
+  
+  
   
   private void render(GraphicsContext gc) {
     gc.clearRect(0, 0, WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
@@ -143,15 +157,15 @@ public class TetriJump {
       }
     }
     
-      gc.setStroke(Color.rgb(169, 169, 169, 0.5)); // Leicht graue Farbe für das Gitter
-      gc.setLineWidth(0.5); // Dünne Linien für das Gitter
-      for (int x = 0; x < WIDTH; x++) {
-          gc.strokeLine(x * TILE_SIZE, 0, x * TILE_SIZE, HEIGHT * TILE_SIZE); // Vertikale Linien
-      }
-      for (int y = 0; y < HEIGHT; y++) {
-          gc.strokeLine(0, y * TILE_SIZE, WIDTH * TILE_SIZE, y * TILE_SIZE); // Horizontale Linien
-      }
-  
+    gc.setStroke(Color.rgb(169, 169, 169, 0.5)); // Leicht graue Farbe für das Gitter
+    gc.setLineWidth(0.5); // Dünne Linien für das Gitter
+    for (int x = 0; x < WIDTH; x++) {
+      gc.strokeLine(x * TILE_SIZE, 0, x * TILE_SIZE, HEIGHT * TILE_SIZE); // Vertikale Linien
+    }
+    for (int y = 0; y < HEIGHT; y++) {
+      gc.strokeLine(0, y * TILE_SIZE, WIDTH * TILE_SIZE, y * TILE_SIZE); // Horizontale Linien
+    }
+    
     // Render Tetromino
     currentTetromino.render(gc, TILE_SIZE);
   }
@@ -164,7 +178,7 @@ public class TetriJump {
   public void fixTetromino(Tetromino tetromino) {
     tetromino.fixToGrid(grid);
   }
-
+  
   private int clearFullRows() {
     int clearedRows = 0;
     for (int y = 0; y < HEIGHT; y++) {
@@ -206,7 +220,7 @@ public class TetriJump {
       case ESCAPE: 
         menu.loadMenu((Pane) gameScene.getRoot(), primaryStage);
         break;  
-      default:
+      default:                                                                                  
         System.out.println("Falsche Taste");
     }
   }
@@ -214,7 +228,7 @@ public class TetriJump {
   public Scene getGameScene() {                                                    
     return gameScene;
   }
-
+  
   private void updateScoreDisplay() {
     scoreText.setText("Score: " + score);
   }
