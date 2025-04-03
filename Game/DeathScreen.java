@@ -25,6 +25,8 @@ public class DeathScreen {
     }
 
     public void show() {
+   
+        musikPlayer.startDeathScreenMusik();
         // Erstelle ein Bild für den "Game Over"-Text
         ImageView deathScreenText = new ImageView(new Image(new File("Bilder/deathscreentext.png").toURI().toString()));
         deathScreenText.setFitWidth(300);
