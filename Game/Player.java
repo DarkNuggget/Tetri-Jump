@@ -29,14 +29,11 @@ public class Player {
 
     public void handleKeyPress(KeyEvent event) {
         switch (event.getCode()) {
-            case LEFT:
+            case A:
                 leftPressed = true;
                 break;
-            case RIGHT:
+            case D:
                 rightPressed = true;
-                break;
-            case DOWN:
-                downPressed = true;
                 break;
             case SPACE:
                 jumpRequested = true;
@@ -49,14 +46,11 @@ public class Player {
   
     public void handleKeyRelease(KeyEvent event) {
         switch (event.getCode()) {
-            case LEFT:
+            case A:
                 leftPressed = false;
                 break;
-            case RIGHT:
+            case D:
                 rightPressed = false;
-                break;
-            case DOWN:
-                downPressed = false;
                 break;
             case SPACE:
                 jumpRequested = false;
