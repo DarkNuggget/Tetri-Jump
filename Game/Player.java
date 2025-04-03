@@ -14,7 +14,7 @@ public class Player {
     private final double gravity = 1; // Schwerkraft
     private final double jumpStrength = -15; // Anfangsgeschwindigkeit beim Springen
     private boolean isJumping = false;
-  
+    public final static MusikPlayer musikPlayer = new MusikPlayer();
     private boolean leftPressed = false;
     private boolean rightPressed = false;
     private boolean downPressed = false;
@@ -37,6 +37,7 @@ public class Player {
                 break;
             case SPACE:
                 jumpRequested = true;
+           InGameMenu.musikPlayer.playJumpSound();
                 break;
             default:
                 System.out.println("False Taste:  " + event.getCode());
