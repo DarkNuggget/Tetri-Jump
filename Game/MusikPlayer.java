@@ -17,6 +17,8 @@ public class MusikPlayer {
     private ArrayList<String> gameMusikListe;
     private ArrayList<String> menuMusikListe;
     private ArrayList<String> shopMusikListe;  // Neue Liste für die Shop-Musik
+    private ArrayList<String> deathScreenMusikListe;  // Neue Liste für die Death-Screen-Musik
+    private ArrayList<String> jumpSoundListe;  // Neue Liste für die Jump-Sounds
     private double aktuelleLautstaerke;
     private String letzterSong;  // Speichert den zuletzt abgespielten Song
     public boolean MenuOffen;
@@ -26,6 +28,8 @@ public class MusikPlayer {
         menuMusikListe = new ArrayList<String>();
         gameMusikListe = new ArrayList<String>();
         shopMusikListe = new ArrayList<String>();  // Initialisierung der Shop-Musik-Liste
+        deathScreenMusikListe = new ArrayList<String>();  // Initialisierung der Death-Screen-Musik-Liste
+        jumpSoundListe = new ArrayList<String>();  // Initialisierung der Jump-Sounds
 
         gameMusikListe.add("GameMusik1.mp3");
         gameMusikListe.add("GameMusik2.mp3");
@@ -37,8 +41,14 @@ public class MusikPlayer {
 
         menuMusikListe.add("MenuMusik1.mp3");
         
-//        shopMusikListe.add("ShopMusik1.mp3");
-        shopMusikListe.add("ShopMusik2.mp3");  // Hinzufügen der Shop-Musik-Datei
+        shopMusikListe.add("ShopMusik2.mp3");
+        shopMusikListe.add("ShopMusik1.mp3");
+        
+        deathScreenMusikListe.add("DeathMusik1.mp3");  // Beispiel-Song für Death-Screen
+        deathScreenMusikListe.add("DeathMusik2.mp3");
+        
+        jumpSoundListe.add("JumpSound1.mp3");  // Beispiel-Sounds für Sprünge
+        jumpSoundListe.add("JumpSound2.mp3");
         
         letzterSong = "";  // Zu Beginn gibt es keinen letzten Song
     }
@@ -66,7 +76,7 @@ public class MusikPlayer {
 
     // Startet die Menü-Musik
     public void startMenuMusik() {
-        starteMusik(menuMusikListe, "MenuMusik"); 
+        starteMusik(menuMusikListe, "MenuMusik");
     }
 
     // Startet die Spiel-Musik
@@ -76,14 +86,22 @@ public class MusikPlayer {
 
     // Startet die Shop-Musik
     public void startShopMusik() {
-        starteMusik(shopMusikListe, "ShopMusik");  // Starte die Musik im Shop-Ordner
+        starteMusik(shopMusikListe, "ShopMusik");
+    }
+
+    // Startet die Death-Screen-Musik
+    public void startDeathScreenMusik() {
+        starteMusik(deathScreenMusikListe, "DeathScreenMusik");
+    }
+
+    // Startet den Jump-Sound
+    public void playJumpSound() {
+        starteMusik(jumpSoundListe, "JumpSounds");
     }
 
     private void starteMusik(ArrayList<String> musikListe, String ordner) {
-        System.out.println(this);
         stoppeAktuelleMusik();
         String ausgewaehlteMusik = waehleZufaelligeMusik(musikListe);
-       
         File musicFile = new File("Musik/" + ordner + "/" + ausgewaehlteMusik);
 
         if(musicFile.exists()) {
@@ -92,7 +110,6 @@ public class MusikPlayer {
         } else {
             System.out.println("Musikdatei " + musicFile.getName() + " wurde nicht gefunden.");
         }
-        System.out.println("ordner: " + ordner + " ausgewaehlteMusik: " + ausgewaehlteMusik);
     }
 
     // Wählt zufällig ein Musikstück aus der Liste, aber nicht den zuletzt abgespielten Song
@@ -103,7 +120,6 @@ public class MusikPlayer {
         do {
             ausgewaehlteMusik = musikListe.get(random.nextInt(musikListe.size()));
         } while (ausgewaehlteMusik.equals(letzterSong));  // Verhindert, dass der letzte Song erneut gespielt wird
-        System.out.println(ausgewaehlteMusik);
         return ausgewaehlteMusik;
     }
 
@@ -113,12 +129,6 @@ public class MusikPlayer {
         mediaPlayer.setVolume(this.getAktuelleLautstaerke());
         mediaPlayer.setCycleCount(1);  // Einmaliges Abspielen des Songs
         mediaPlayer.play();
-        
-        // Wenn der Song zu Ende ist, starte den nächsten
-        mediaPlayer.setOnEndOfMedia(() -> {
-            System.out.println("Song zu Ende, nächster Song wird abgespielt.");
-            starteMusik(gameMusikListe, "GameMusik");  // Hier könnte auch eine andere Liste wie menuMusikListe verwendet werden
-        });
     }
 
     // Zeigt das Einstellungsfenster für die Lautstärke
