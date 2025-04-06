@@ -10,13 +10,13 @@ A = links bewegen
 D = rechts bewegen
 S = schneller runter
 Space = Block drehen 
-M = Menu  
+ESC = Menu  
 
 Jump Tetris: 
 A = links bewegen
 D = rechts bewegen
 Space = Springen
-M = Menu  
+ESC = Menu  
 
 
 
