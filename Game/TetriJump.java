@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import javafx.scene.effect.GaussianBlur;
+import java.util.Scanner;
 
 public class TetriJump {
   
@@ -26,14 +27,13 @@ public class TetriJump {
   private Stage primaryStage;
   private TetriGui app;
   private static final int TILE_SIZE = 30;
-  
   public static int WIDTH = 20;
   public static int HEIGHT = 22;
   private Color[][] grid = new Color[HEIGHT][WIDTH];
   private Timeline gameLoop;
   private Tetromino currentTetromino;
   private InGameMenu menu = new InGameMenu();
-  
+  private int tetriCoins;
   private StartScreen startScreen;
   private int score = 0;
   private int comboMultiplier = 1; // Für zusätzliche Belohnung bei Ketten
@@ -96,6 +96,7 @@ public class TetriJump {
       updateGame();
       render(gc);
     }));
+    loadTetriCoinsFromFile();
     gameLoop.setCycleCount(Timeline.INDEFINITE);
     gameLoop.play();
   }
@@ -124,7 +125,8 @@ public class TetriJump {
   private void endGame(Stage primaryStage) {
     gameLoop.stop(); // Stoppe den Game Loop
     scoreIncrementer.stop(); // Stoppe den Score-Inkrementer, damit der Score nicht weiter geht
-    
+    ScoreCoinsRechner();
+    saveTetriCoinsToFile();
     // Zeige den Death Screen an
     Scene previousScene = primaryStage.getScene(); // Annahme, dass die aktuelle Szene des Spiels geladen ist
     
@@ -223,6 +225,49 @@ public class TetriJump {
       default:                                                                                  
         System.out.println("Falsche Taste");
     }
+  }
+  
+    public void loadTetriCoinsFromFile() {
+    File file = new File("Config/TetriCoins.txt");
+    if (file.exists()) {
+        try (Scanner scanner = new Scanner(file)) {
+            if (scanner.hasNextLine()) {
+                tetriCoins = Integer.parseInt(scanner.nextLine().trim()); // TetriCoins aus der Datei lesen
+                System.out.println("Geladene TetriCoins: " + tetriCoins);
+            }
+        } catch (IOException e) {
+            System.err.println("Fehler beim Laden der TetriCoins: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.err.println("Fehler beim Konvertieren der TetriCoins: " + e.getMessage());
+        }
+    } else {
+        System.out.println("Keine TetriCoins-Konfiguration gefunden. Standardwert wird verwendet.");
+    }
+} 
+  
+   public void saveTetriCoinsToFile() {
+    try {
+        File configDir = new File("Config");
+        if (!configDir.exists()) {
+            configDir.mkdir(); // Ordner erstellen, falls nicht vorhanden
+        }
+
+        FileWriter writer = new FileWriter("Config/TetriCoins.txt");
+        writer.write(String.valueOf(tetriCoins)); // Speichern der TetriCoins
+        writer.close();
+        System.out.println("TetriCoins wurden in Config/TetriCoins.txt gespeichert.");
+    } catch (IOException e) {
+        System.err.println("Fehler beim Speichern der TetriCoins: " + e.getMessage());
+    }
+}
+  
+  public void ScoreCoinsRechner(){
+    int plusCoins = 0;
+    plusCoins = score / 5;
+    
+    tetriCoins = tetriCoins + plusCoins;
+    System.out.println("plusCoins: " + plusCoins);
+    System.out.println("neu TetriCoins: " + tetriCoins);
   }
   
   public Scene getGameScene() {                                                    

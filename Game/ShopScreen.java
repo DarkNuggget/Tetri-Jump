@@ -10,6 +10,9 @@ import javafx.scene.input.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.io.IOException;
+import java.io.FileWriter;
 
 public class ShopScreen {
     private final TetriJumpShop mainApp;
@@ -59,7 +62,7 @@ public class ShopScreen {
         topBar.getChildren().addAll(coinBox);
 
        
-
+                                                                 
         // Grid für Skins
         GridPane skinGrid = new GridPane();
         skinGrid.setHgap(15);
@@ -99,61 +102,127 @@ public class ShopScreen {
     }
 
     // Hilfsmethode zum Erstellen von Skin-Boxen
-    private VBox createSkinBox(Skin skin) {
-        VBox skinBox = new VBox(10);
-        skinBox.setAlignment(Pos.CENTER);
+  private VBox createSkinBox(Skin skin) {
+    VBox skinBox = new VBox(10);
+    skinBox.setAlignment(Pos.CENTER);
 
-        ImageView skinImage;
-        try {
-            skinImage = new ImageView(new Image(getClass().getResourceAsStream(skin.getImagePath()), 120, 120, true, true));
-        } catch (Exception e) {
-            System.out.println("Bild konnte nicht geladen werden: " + skin.getImagePath());
-            skinImage = new ImageView();
-        }
-
-        Label skinLabel = new Label(skin.getName());
-        skinLabel.setStyle("-fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: #5A9EBB; -fx-effect: dropshadow(gaussian, rgba(0,0,0.5,0.8), 5, 0.5, 1, 1);");
-
-        Button buyButton = new Button("Kaufen");
-        buyButton.setDisable(skin.isBought());
-        buyButton.setOnAction(e -> {
-            if (tetriCoins >= 500) { // Skin kostet 500 TetriCoins
-                tetriCoins -= 500;
-                mainApp.setTetriCoins(tetriCoins);
-                coinLabel.setText("💰 " + tetriCoins);
-                skin.setBought(true); // Skin als gekauft markieren
-                buyButton.setDisable(true);
-                updateButtons(); // Buttons aktualisieren
-            } else {
-                System.out.println("Nicht genug TetriCoins!");
-            }
-        });
-
-        Button applyButton = new Button("Anwenden");
-        applyButton.setDisable(!skin.isBought() || mainApp.getActiveSkin().equals(skin.getName()));
-        applyButton.setOnAction(e -> {
-            mainApp.setActiveSkin(skin.getName());
-            updateButtons();
-        });
-
-        HBox buttonBox = new HBox(10, buyButton, applyButton);
-        buttonBox.setAlignment(Pos.CENTER);
-
-        skinBox.getChildren().addAll(skinImage, skinLabel, buttonBox);
-        return skinBox;
+    ImageView skinImage;
+    try {
+        skinImage = new ImageView(new Image(getClass().getResourceAsStream(skin.getImagePath()), 120, 120, true, true));
+    } catch (Exception e) {
+        System.out.println("Bild konnte nicht geladen werden: " + skin.getImagePath());
+        skinImage = new ImageView();
     }
+
+    Label skinLabel = new Label(skin.getName());
+    skinLabel.setStyle("-fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: #5A9EBB;");
+
+    Button buyButton = new Button("Kaufen");
+    Button applyButton = new Button("Anwenden");
+
+    // Initiale Button-Zustände setzen
+    buyButton.setDisable(skin.isBought());
+    applyButton.setDisable(!skin.isBought() || mainApp.getActiveSkin().equals(skin.getName()));
+
+    // Kauf-Logik
+    buyButton.setOnAction(e -> {
+    if (tetriCoins >= 500) { // Skin kostet 500 TetriCoins
+        tetriCoins -= 500;
+        mainApp.setTetriCoins(tetriCoins);
+        coinLabel.setText("💰 " + tetriCoins);
+        skin.setBought(true); // Skin als gekauft markieren
+        updateButtons(); // Buttons aktualisieren
+        mainApp.saveBoughtSkinsToFile(); // Gekaufte Skins speichern
+        mainApp.saveTetriCoinsToFile(); // TetriCoins speichern
+    } else {
+        System.out.println("Nicht genug TetriCoins!");
+    }
+});
+
+
+    // Anwenden-Logik
+    applyButton.setOnAction(e -> {
+        mainApp.setActiveSkin(skin.getName());
+        updateButtons(); // Buttons aktualisieren
+        saveDataToFile(); // Speichern der Daten nach dem Wechsel des aktiven Skins
+    });
+
+    HBox buttonBox = new HBox(10, buyButton, applyButton);
+    buttonBox.setAlignment(Pos.CENTER);
+
+    skinBox.getChildren().addAll(skinImage, skinLabel, buttonBox);
+    return skinBox;
+}
+
+  
+  private void saveDataToFile() {
+    try {
+        // TetriCoins speichern
+        FileWriter coinWriter = new FileWriter("Config/TetriCoins.txt");
+        coinWriter.write(String.valueOf(tetriCoins));
+        coinWriter.close();
+
+        // Aktiven Skin speichern
+        FileWriter skinWriter = new FileWriter("Config/ActiveSkin.txt");
+        skinWriter.write(mainApp.getActiveSkin());
+        skinWriter.close();
+
+        System.out.println("Daten wurden erfolgreich gespeichert!");
+    } catch (IOException e) {
+        System.err.println("Fehler beim Speichern der Daten: " + e.getMessage());
+    }
+}
+  
+  private void loadDataFromFile() {
+    // TetriCoins laden
+    try (Scanner coinScanner = new Scanner(new File("Config/TetriCoins.txt"))) {
+        if (coinScanner.hasNextInt()) {
+            tetriCoins = coinScanner.nextInt();
+            System.out.println("Geladene TetriCoins: " + tetriCoins);
+        }
+    } catch (IOException e) {
+        System.err.println("Fehler beim Laden der TetriCoins: " + e.getMessage());
+    }
+
+    // Aktiven Skin laden
+    try (Scanner skinScanner = new Scanner(new File("Config/ActiveSkin.txt"))) {
+        if (skinScanner.hasNextLine()) {
+            String activeSkinName = skinScanner.nextLine().trim();
+            mainApp.setActiveSkin(activeSkinName);
+            System.out.println("Geladener aktiver Skin: " + activeSkinName);
+        }
+    } catch (IOException e) {
+        System.err.println("Fehler beim Laden des aktiven Skins: " + e.getMessage());
+    }
+}
+
 
     private void updateButtons() {
-        for (VBox skinBox : skinBoxes) {
-            Label label = (Label) skinBox.getChildren().get(1);
-            HBox buttonBox = (HBox) skinBox.getChildren().get(2);
-            Button applyButton = (Button) buttonBox.getChildren().get(1);
-            Button buyButton = (Button) buttonBox.getChildren().get(0);
-            String skinName = label.getText();
-            Skin skin = mainApp.getSkins().stream().filter(s -> s.getName().equals(skinName)).findFirst().get();
+    for (VBox skinBox : skinBoxes) {
+        Label label = (Label) skinBox.getChildren().get(1);
+        HBox buttonBox = (HBox) skinBox.getChildren().get(2);
+        Button buyButton = (Button) buttonBox.getChildren().get(0);
+        Button applyButton = (Button) buttonBox.getChildren().get(1);
 
-            applyButton.setDisable(!skin.isBought() || mainApp.getActiveSkin().equals(skin.getName()));
+        String skinName = label.getText();
+        Skin skin = mainApp.getSkins().stream()
+            .filter(s -> s.getName().equals(skinName))
+            .findFirst()
+            .orElse(null);
+
+        if (skin != null) {
             buyButton.setDisable(skin.isBought());
+            applyButton.setDisable(!skin.isBought() || mainApp.getActiveSkin().equals(skin.getName()));
+
+            if (mainApp.getActiveSkin().equals(skinName)) {
+                applyButton.setText("Aktiv");
+                applyButton.setStyle("-fx-background-color: lightgreen;");
+            } else {
+                applyButton.setText("Anwenden");
+                applyButton.setStyle(""); // Zurücksetzen
+            }
         }
     }
+}
+
 }

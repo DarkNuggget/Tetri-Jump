@@ -54,6 +54,9 @@ public class MusikPlayer {
     gameMusikListe.add("GameMusik5.mp3");
     gameMusikListe.add("GameMusik6.mp3");
     gameMusikListe.add("GameMusik7.mp3");
+    gameMusikListe.add("GameMusik8.mp3");
+    gameMusikListe.add("GameMusik9.mp3");
+    gameMusikListe.add("GameMusik10.mp3");
     
     menuMusikListe.add("MenuMusik1.mp3");
     menuMusikListe.add("MenuMusik2.mp3");

@@ -19,12 +19,15 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
 public class HimmelDeathScreen {
   private Stage primaryStage;
   private Scene previousScene;
   private TetriGui app = new TetriGui(); // Assuming TetriGui has a method to show the start screen.
   public final static MusikPlayer musikPlayer = new MusikPlayer();
+  String skinPath = loadSkinPathFromFile();
   
   public HimmelDeathScreen(Stage primaryStage, Scene previousScene) {
     this.primaryStage = primaryStage;
@@ -57,10 +60,10 @@ public class HimmelDeathScreen {
     imageView.setTranslateY(-350);  // Die Höhe der Szene (700) ist der Startpunkt für das Hintergrundbild
     
     // Neues Bild in die Mitte der Szene einfügen
-    Image fallingImage = new Image("Skins/BerndDasBrot.png"); // Bildpfad für das Bild, das nach unten geht
+   Image fallingImage = new Image(skinPath); // Pfad aus Datei statt festem Wert
     ImageView fallingImageView = new ImageView(fallingImage);
     fallingImageView.setFitHeight(100);  // Höhe des fallenden Bildes anpassen
-    fallingImageView.setFitWidth(100);   // Breite des fallenden Bildes anpassen
+    fallingImageView.setFitWidth(100);   // Breite des fallend  // Breite des fallenden Bildes anpassen
     
     // Bild in die Mitte der Szene platzieren
     fallingImageView.setTranslateX(0);  // Setze das Bild mittig (600px Breite -> 275px ist die Mitte)
@@ -113,7 +116,6 @@ public class HimmelDeathScreen {
     Button restartButton = createStyledButton("Bilder/MainMenu.png", event -> {
       System.out.println("Returning to Main Menu...");
       InGameMenu.musikPlayer.stoppeAktuelleMusik();
-      InGameMenu.musikPlayer.startMenuMusik();
       app.showStartScreen();
     });
     
@@ -199,4 +201,19 @@ public class HimmelDeathScreen {
     
     return button;
   }
+  
+  private String loadSkinPathFromFile() {
+    File file = new File("Config/Skin.txt");
+    if (file.exists()) {
+      try (Scanner scanner = new Scanner(file)) {
+        if (scanner.hasNextLine()) {
+          return scanner.nextLine();
+        }
+      } catch (IOException e) {
+        System.err.println("Fehler beim Laden des Skin-Pfads: " + e.getMessage());
+      }
+    }
+    return "/Skins/Standard.png"; // Fallback, falls Datei nicht existiert oder fehlerhaft ist
+  }
+  
 }

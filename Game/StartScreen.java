@@ -117,7 +117,7 @@ public class StartScreen {
       RadioButton selected = (RadioButton) group.getSelectedToggle();
       if (selected != null) {
         String selectedMode = selected.getText();
-        InGameMenu.musikPlayer.MenuOffen = false;
+        InGameMenu.musikPlayer.stoppeAktuelleMusik();;
         InGameMenu.musikPlayer.startGameMusik();
         app.startGameWithMode(selectedMode);
       }
