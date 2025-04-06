@@ -36,10 +36,7 @@ public class DeathScreen {
         BerndBild.setFitWidth(600);
         BerndBild.setFitHeight(500);
 
-        // Erstelle das Score-Symbol
-        ImageView scoreIcon = new ImageView(new Image(new File("Bilder/scoreicon.png").toURI().toString())); // Beispiel: Bild für das Score-Symbol
-        scoreIcon.setFitWidth(50);
-        scoreIcon.setFitHeight(50);
+       
 
         // Erstelle den Text für den Score (mit weißer Farbe)
         Text scoreText = new Text("Score: " + score);
@@ -56,17 +53,17 @@ public class DeathScreen {
         StackPane overlay = new StackPane();
 
         // Füge das Bild, das Score-Symbol, den Score-Text und die Buttons zu diesem Overlay hinzu
-        overlay.getChildren().addAll(deathScreenText, BerndBild, scoreIcon, scoreText, restartButton);
+        overlay.getChildren().addAll(deathScreenText, BerndBild, scoreText, restartButton);
 
         // Bild und Button positionieren
         StackPane.setAlignment(deathScreenText, Pos.TOP_CENTER);
         StackPane.setAlignment(restartButton, Pos.BOTTOM_CENTER);
         StackPane.setAlignment(BerndBild, Pos.BOTTOM_CENTER);
-        StackPane.setAlignment(scoreIcon, Pos.TOP_CENTER);
+       
         StackPane.setAlignment(scoreText, Pos.CENTER);
 
         // Das Score-Symbol und der Text werden unterhalb des Bernd-Bildes angezeigt
-        StackPane.setMargin(scoreIcon, new javafx.geometry.Insets(20, 0, 50, 0)); // Abstand zum Bernd-Bild
+       
         StackPane.setMargin(scoreText, new javafx.geometry.Insets(20, 0, 100, 0)); // Abstand zum Score-Symbol
 
         // Spielfeld bleibt im Hintergrund sichtbar
